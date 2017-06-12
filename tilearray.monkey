@@ -18,7 +18,7 @@ Class MyApp Extends App
 '	Const tilesize:Int = 32
 '
 '	Field myboxes:Box[][]
-'	Field mygrid:Grid = New Grid
+'	Field mygrid:Board = New Board
 
 	Field myboard:Board = New Board
 	
@@ -27,7 +27,7 @@ Class MyApp Extends App
 	Method OnCreate:Int()
 '		mygrid.Create
 		myboard.Create
-		myboard.CreatePieces
+		
 '		sx = DeviceWidth()/tilesize
 '		sy = DeviceHeight()/tilesize
 '		SetUpdateRate(60) 	
@@ -139,15 +139,17 @@ Class Box
 
 End Class
 
-Class Grid
+Class Board
 
 
 	Field sx:Int 
 	Field sy:Int 
 	Const tilesize:Int = 32
 	Field myboxes:Box[]
+	Field teamsize:Int = 10
+	Field pieces:Piece[10]
 	
-	Method Create:void()
+	Method Create:Void()
 		Print "It works"
 		
 		sx = DeviceWidth()/tilesize
@@ -163,6 +165,25 @@ Class Grid
 		
 		
 		Next
+		
+				For Local i:Int = 0 Until teamsize
+			pieces[i] = New Piece
+		
+		
+		
+		
+		Next
+	
+	
+		
+		For Local i:Int = 0 Until teamsize
+			
+				pieces[i].x = (i+1)-0.5
+'				Pieces[i].y *= tilesize
+
+			
+		
+		Next 
 		
 
 		
@@ -200,61 +221,6 @@ Class Grid
 			Next	
 			
 		Next
-	
-	End Method
-
-
-
-
-End Class
-
-Class Piece
-	Field x:Int
-	Field y:Int = 1
-	Field color:Int
-
-	Method Create:Void (tilesize:Int)
-	
-		
-	'	SetColor(255,255,255)
-				
-		'DrawCircle(x*tilesize,y*tilesize,tilesize)
-		DrawCircle(x*32,y*32,32)
-		
-		
-		
-	End Method
-
-
-End Class
-
-Class Board Extends Grid
-
-
-	Field teamsize:Int = 10
-	Field pieces:Piece[tilesize]
-	
-	Method CreatePieces:Void ()
-		Print "CreatePieces"
-	
-		For Local i:Int = 0 Until teamsize
-			pieces[i] = New Piece
-		
-		
-		
-		
-		Next
-	
-	
-		
-		For Local i:Int = 0 Until teamsize
-			
-				pieces[i].x = i
-'				Pieces[i].y *= tilesize
-
-			
-		
-		Next 
 		
 		For Local n:Int = 0 Until pieces.Length
 			pieces[n].Create(tilesize)
@@ -264,15 +230,30 @@ Class Board Extends Grid
 		
 		
 		Next
-		
-		
-	
 	
 	End Method
 	
- 
 
+
+
+End Class
+
+Class Piece
+	Field x:Float 
+	Field y:float = 0.5
+	Field color:Int
+
+	Method Create:Void (tilesize:Int)
 	
+		
+	'	SetColor(255,255,255)
+				
+		'DrawCircle(x*tilesize,y*tilesize,tilesize)
+		DrawCircle(x*tilesize,y*tilesize,tilesize/2)
+		
+		
+		
+	End Method
 
 
 End Class
