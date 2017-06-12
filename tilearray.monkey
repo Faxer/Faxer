@@ -23,9 +23,11 @@ Class MyApp Extends App
 	Field myboard:Board = New Board
 	
 	
+	
 	Method OnCreate:Int()
 '		mygrid.Create
 		myboard.Create
+		myboard.CreatePieces
 '		sx = DeviceWidth()/tilesize
 '		sy = DeviceHeight()/tilesize
 '		SetUpdateRate(60) 	
@@ -163,7 +165,7 @@ Class Grid
 		Next
 		
 
-	
+		
 
 	
 	End Method
@@ -211,12 +213,13 @@ Class Piece
 	Field y:Int = 1
 	Field color:Int
 
-	Method Create:Void (tilesize:int)
-		Local tilesize:Int
+	Method Create:Void (tilesize:Int)
+	
 		
-		SetColor (255,0,0)
+	'	SetColor(255,255,255)
 				
-		DrawCircle(x*tilesize,y*tilesize,tilesize)
+		'DrawCircle(x*tilesize,y*tilesize,tilesize)
+		DrawCircle(x*32,y*32,32)
 		
 		
 		
@@ -229,9 +232,19 @@ Class Board Extends Grid
 
 
 	Field teamsize:Int = 10
-	Field pieces:Piece = New Piece[teamsize]
+	Field pieces:Piece[tilesize]
 	
 	Method CreatePieces:Void ()
+		Print "CreatePieces"
+	
+		For Local i:Int = 0 Until teamsize
+			pieces[i] = New Piece
+		
+		
+		
+		
+		Next
+	
 	
 		
 		For Local i:Int = 0 Until teamsize
@@ -243,8 +256,14 @@ Class Board Extends Grid
 		
 		Next 
 		
+		For Local n:Int = 0 Until pieces.Length
+			pieces[n].Create(tilesize)
 		
-		Piece.Create(tilesize)
+		
+		
+		
+		
+		Next
 		
 		
 	
