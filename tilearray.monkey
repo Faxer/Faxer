@@ -6,64 +6,30 @@ Function Main:Int()
 
 	Local theapp:MyApp = New MyApp
 
-
 	Return 0	
 End Function
 
 
 Class MyApp Extends App
 
-'	Field sx:Int 
-'	Field sy:Int 
-'	Const tilesize:Int = 32
-'
-'	Field myboxes:Box[][]
-'	Field mygrid:Board = New Board
+ 
+	Const tilesize:Int = 32
 
-	Field myboard:Board = New Board
-	
-	
+	Field myboard:Grid  
 	
 	Method OnCreate:Int()
-'		mygrid.Create
-		myboard.Create
-		
-'		sx = DeviceWidth()/tilesize
-'		sy = DeviceHeight()/tilesize
-'		SetUpdateRate(60) 	
-'			Print DeviceWidth()
-'	
-'		myboxes = New Box[sx][]
-'		
-'		For Local i:Int = 0 Until myboxes.Length
-'			myboxes[i] = New Box[sy]
-'			For Local n:Int = 0 Until sy
-'				myboxes[i][n] = New Box
-'			
-'			Next
-'		
-'		
-'		Next
-'		
-		
+	
+ 
+		SetUpdateRate(60) 	
+' 
+		myboard = New Grid(2,3,tilesize)
+ 
 		
 		Return 0
 	End Method
 	
 	Method OnUpdate:Int()
-	
-		
-'		mygrid.Update
-
-		myboard.Update
-'		For Local i:Int = 0 Until sx
-'			For Local n:Int = 0 Until sy
-'				myboxes[i][n].Update
-			
-'			Next
-		
-		
-'		Next
+ 
 	
 	
 		Return 0
@@ -73,45 +39,24 @@ Class MyApp Extends App
 		Cls(255,0,0)
 '		mygrid.Render
 		myboard.Render
-'		For Local x:Int = 0 Until myboxes.Length
-'			For Local y:Int = 0  Until sy
-'				myboxes[x][y].Draw(x*tilesize,y*tilesize,tilesize,tilesize)
-'
-'
-'			Next
-'			
-'		Next
+ 
 		Return 0
 	End Method
 
 End Class
+ 
 
-
-
-
-
-
-
-
-
-
-
-
-Class Box 
-
-'	Field x:Float 
-'	Field y:Float
-'	Field w:Float = DeviceWidth()
-'	Field h:Float = DeviceHeight()
+Class Piece 
+ 
 	Field r:Int  
 	Field g:Int 
 	Field b:Int 
 
 	Method New()
 	
-		Self.r = Rnd(0,255)
-		Self.g = Rnd(0,255)		
-		Self.b = Rnd(0,255)
+		Self.r = 40'Rnd(0,255)
+		Self.g = 40'Rnd(0,255)		
+		Self.b = 40'Rnd(0,255)
 		
 '		Self.x = Rnd(w/4,w/4*3)
 '		Self.y = Rnd(h/4,h/4*3)	
@@ -131,105 +76,63 @@ Class Box
 	End Method
 	
 	Method Update:void()
-		Self.r = Rnd(0,255)
-		Self.g = Rnd(0,255)
-		Self.b = Rnd(0,255)	
+		'Self.r = Rnd(0,255)
+		'Self.g = Rnd(0,255)
+		'Self.b = Rnd(0,255)	
 	End Method
 
 
 End Class
 
-Class Board
-
-
-	Field sx:Int 
-	Field sy:Int 
+Class Grid
+	Field _sx:Int 
+	Field _sy:Int 
 	Const tilesize:Int = 32
-	Field myboxes:Box[]
+	'Field myboxes:Box[]
 	Field teamsize:Int = 10
-	Field pieces:Piece[10]
+	Field pieces:Piece[]
+	Field _tilesize:int
 	
-	Method Create:Void()
-		Print "It works"
-		
-		sx = DeviceWidth()/tilesize
-		sy = DeviceHeight()/tilesize
-		SetUpdateRate(60) 	
-			Print DeviceWidth()
-	
-		myboxes = New Box[sx*sy]
-		
-		For Local i:Int = 0 Until myboxes.Length
-			myboxes[i] = New Box
-			
-		
-		
-		Next
-		
-				For Local i:Int = 0 Until teamsize
-			pieces[i] = New Piece
-		
-		
-		
-		
-		Next
-	
-	
-		
-		For Local i:Int = 0 Until teamsize
-			
-				pieces[i].x = (i+1)-0.5
-'				Pieces[i].y *= tilesize
+	Method New (sx:Int,sy:Int,tilesize:Int)
+		_sx = sx
+		_sy = sy
+		_tilesize = tilesize
+		pieces = New Piece[_sx*_sy]
 
-			
-		
-		Next 
-		
-
-		
-
-	
 	End Method
 	
+	
+	Method New()
+	'	Error "Grid New() : Call the constructor with paremeters!"
+	End Method
+	
+ 
+	
 	Method Update:Void ()
-	
-		
 
-		For Local i:Int = 0 Until sx*sy
-			
-				myboxes[i].Update
-			
-		
-		
-		Next
-	
-	
-
-	
 	End Method
 	
 	
 	Method Render:Void ()
 	
-		For Local y:Int = 0 Until sy
-			For Local x:Int = 0  Until sx
-				Local index:Int = y*sy + x
-				
-				myboxes[index].Draw(x*tilesize,y*tilesize,tilesize,tilesize)
+		For Local y:Int = 0 Until _sy
+			For Local x:Int = 0  Until _sx
+				Local index:Int = y*_sx + x
 
+				If pieces[index]
+					pieces[index].Draw(x*tilesize,y*tilesize,tilesize,tilesize)
+				Else
+					DrawRect(x*tilesize+1,y*tilesize+1,tilesize-2,tilesize-2)
+				Endif
 
 			Next	
 			
 		Next
 		
-		For Local n:Int = 0 Until pieces.Length
-			pieces[n].Create(tilesize)
-		
-		
-		
-		
-		
-		Next
+'		For Local n:Int = 0 Until pieces.Length
+'			pieces[n].Create(tilesize)
+'		
+'		Next
 	
 	End Method
 	
@@ -238,6 +141,7 @@ Class Board
 
 End Class
 
+#rem
 Class Piece
 	Field x:Float 
 	Field y:float = 0.5
@@ -249,7 +153,7 @@ Class Piece
 	'	SetColor(255,255,255)
 				
 		'DrawCircle(x*tilesize,y*tilesize,tilesize)
-		DrawCircle(x*tilesize,y*tilesize,tilesize/2)
+	'	DrawCircle(x*tilesize,y*tilesize,tilesize/2)
 		
 		
 		
@@ -257,4 +161,4 @@ Class Piece
 
 
 End Class
-
+#end
