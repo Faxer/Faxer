@@ -34,9 +34,10 @@ Class MyApp Extends App
 	End Method
 	
 	Method OnUpdate:Int()
- 
-	
-	
+ 		If TouchHit
+ 			myboard.AddPiece(Mousex,Mousey,black)
+		endif	
+
 		Return 0
 	End Method
 	
