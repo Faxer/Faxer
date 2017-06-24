@@ -11,38 +11,68 @@ End Function
 
 
 Class MyApp Extends App
+	Field p1:= New Piece(40,40,100)
+	Field p2:= New Piece(255,0,100)
+	Field currentplayer:Piece  
+	Field SHortestside:int
 
  
-	Const tilesize:Int = 32
+	field tilesize:Int 
 
 	Field myboard:Grid  
 	
 	Method OnCreate:Int()
-		Local black:= New Piece(40,40,100)
+		Local shortestside:Int
+		Local gamesize:Int = 15
 		
-		
+		If DeviceWidth() > DeviceHeight()
+			tilesize = DeviceHeight()/gamesize
+			Else
+			tilesize = DeviceWidth()/gamesize
+		endif
+			
+			
 	
  
 		SetUpdateRate(60) 	
 ' 
-		myboard = New Grid(2,3,tilesize)
+		myboard = New Grid(15,15,tilesize)
 		
-		myboard.AddPiece(1,1,black)
-		myboard.AddPiece(2,1,black) 
+'		myboard.AddPiece(1,1,p1)
+'		myboard.AddPiece(2,1,p1) 
+		currentplayer = p1
 		
 		Return 0
 	End Method
 	
 	Method OnUpdate:Int()
- 		If TouchHit
- 			myboard.AddPiece(Mousex,Mousey,black)
-		endif	
+ 		If TouchHit(0)
+ 			
+ 			myboard.AddPiece(TouchX(0)/tilesize,TouchY(0)/tilesize,currentplayer)
+			If currentplayer = p1
+				currentplayer = p2
+				Else
+				currentplayer = p1
+			endif
+		Endif	
+		If KeyHit(KEY_R)
+			p1._r = Rnd(0,255)
+		Endif 
+
+		If KeyHit(KEY_G)
+			p1._g = Rnd(0,255)
+		Endif
+		
+		If KeyHit(KEY_B)
+			p1._b = Rnd(0,255)
+		Endif
+
 
 		Return 0
 	End Method
 	
 	Method OnRender:Int()
-		Cls(255,0,0)
+		Cls(100,150,150)
 '		mygrid.Render
 		myboard.Render
  
@@ -89,7 +119,6 @@ End Class
 Class Grid
 	Field _sx:Int 
 	Field _sy:Int 
-	Const tilesize:Int = 32
 	'Field myboxes:Box[]
 	Field teamsize:Int = 10
 	Field pieces:Piece[]
@@ -121,10 +150,10 @@ Class Grid
 			For Local x:Int = 0  Until _sx
 			
 					SetColor(255,255,255)
-					DrawRect(x*tilesize+1,y*tilesize+1,tilesize-2,tilesize-2)
+					DrawRect(x*_tilesize+1,y*_tilesize+1,_tilesize-2,_tilesize-2)
 
 				If pieces[I(x,y)]
-					pieces[I(x,y)].Draw(x*tilesize,y*tilesize,tilesize)
+					pieces[I(x,y)].Draw(x*_tilesize,y*_tilesize,_tilesize)
 	 
 			
 				Endif
