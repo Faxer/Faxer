@@ -18,12 +18,17 @@ Class MyApp Extends App
 	Field myboard:Grid  
 	
 	Method OnCreate:Int()
+		Local black:= New Piece(40,40,100)
+		
+		
 	
  
 		SetUpdateRate(60) 	
 ' 
 		myboard = New Grid(2,3,tilesize)
- 
+		
+		myboard.AddPiece(1,1,black)
+		myboard.AddPiece(2,1,black) 
 		
 		Return 0
 	End Method
@@ -48,34 +53,30 @@ End Class
 
 Class Piece 
  
-	Field r:Int  
-	Field g:Int 
-	Field b:Int 
+	Field _r:Int  
+	Field _g:Int 
+	Field _b:Int 
 
 	Method New()
 	
-		Self.r = 40'Rnd(0,255)
-		Self.g = 40'Rnd(0,255)		
-		Self.b = 40'Rnd(0,255)
-		
-'		Self.x = Rnd(w/4,w/4*3)
-'		Self.y = Rnd(h/4,h/4*3)	
-		
-
+		_r = 40'Rnd(0,255)
+		_g = 40'Rnd(0,255)		
+		_b = 40'Rnd(0,255)
 	
-	End method
-
-	Method Draw:Void(x:Float,y:Float,w:int,h:int)
-	
-		SetColor(r,g,b)
-		Print x
-	
-		DrawRect(x,y,w,h)		
-
-
 	End Method
 	
-	Method Update:void()
+	Method New (r:Int,g:Int,b:Int)
+		_r=r
+		_g=g
+		_b=b
+	End Method
+
+	Method Draw:Void(x:Float,y:Float,tilesize:int)
+		SetColor(_r,_g,_b)
+		DrawCircle(x+tilesize/2,y+tilesize/2,tilesize/2)		
+	End Method
+	
+	Method Update:Void()
 		'Self.r = Rnd(0,255)
 		'Self.g = Rnd(0,255)
 		'Self.b = Rnd(0,255)	
@@ -91,7 +92,7 @@ Class Grid
 	'Field myboxes:Box[]
 	Field teamsize:Int = 10
 	Field pieces:Piece[]
-	Field _tilesize:int
+	Field _tilesize:Int
 	
 	Method New (sx:Int,sy:Int,tilesize:Int)
 		_sx = sx
@@ -117,12 +118,14 @@ Class Grid
 	
 		For Local y:Int = 0 Until _sy
 			For Local x:Int = 0  Until _sx
-				Local index:Int = y*_sx + x
-
-				If pieces[index]
-					pieces[index].Draw(x*tilesize,y*tilesize,tilesize,tilesize)
-				Else
+			
+					SetColor(255,255,255)
 					DrawRect(x*tilesize+1,y*tilesize+1,tilesize-2,tilesize-2)
+
+				If pieces[I(x,y)]
+					pieces[I(x,y)].Draw(x*tilesize,y*tilesize,tilesize)
+	 
+			
 				Endif
 
 			Next	
@@ -136,8 +139,18 @@ Class Grid
 	
 	End Method
 	
+	Method I:Int(x:Int,y:Int)
+	
+		
+	
+		Return y*_sx+x
+	End Method
+	
+	Method AddPiece:Void (x:Int,y:Int,p:Piece)
+		pieces[I(x,y)] = p
+		
 
-
+	End Method
 
 End Class
 
