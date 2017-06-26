@@ -47,14 +47,14 @@ Class MyApp Extends App
 	
 	Method OnUpdate:Int()
  		If TouchHit(0)
- 			If myboard.TileCheck(TouchX(0)/tilesize,TouchY(0)/tilesize) = True
+
  				myboard.AddPiece(TouchX(0)/tilesize,TouchY(0)/tilesize,currentplayer)
 				If currentplayer = p1
 					currentplayer = p2
 					Else
 					currentplayer = p1
 				Endif
-			endif
+
 		Endif	
 		If KeyHit(KEY_R)
 			p1._r = Rnd(0,255)
@@ -67,7 +67,10 @@ Class MyApp Extends App
 		If KeyHit(KEY_B)
 			p1._b = Rnd(0,255)
 		Endif
-
+		
+		If KeyHit(KEY_C)
+			myboard.Clear
+		endif
 
 		Return 0
 	End Method
@@ -177,20 +180,22 @@ Class Grid
 		Return y*_sx+x
 	End Method
 	
-	Method AddPiece:Void (x:Int,y:Int,p:Piece)
-		pieces[I(x,y)] = p
+	Method AddPiece:bool (x:Int,y:Int,p:Piece)
 		
+		If pieces[I(x,y)]
+			Return False
+			Else
+			pieces[I(x,y)] = p
+			Return true
+		Endif
 
 	End Method
 	
-	Method TileCheck:Bool(x:Int,y:Int)
-		If pieces[I(x,y)]
-			Return True 
-		Else
-			Return False
-			endif
+	Method Clear:Void()
+		pieces = New Piece[_sx*_sy]
+	
 	End Method
-
+	
 End Class
 
 #rem
