@@ -14,7 +14,7 @@ Class MyApp Extends App
 	Field p1:= New Piece(40,40,100)
 	Field p2:= New Piece(255,0,100)
 	Field currentplayer:Piece  
-	Field SHortestside:int
+	Field Shortestside:int
 
  
 	field tilesize:Int 
@@ -47,12 +47,13 @@ Class MyApp Extends App
 	
 	Method OnUpdate:Int()
  		If TouchHit(0)
- 			
- 			myboard.AddPiece(TouchX(0)/tilesize,TouchY(0)/tilesize,currentplayer)
-			If currentplayer = p1
-				currentplayer = p2
-				Else
-				currentplayer = p1
+ 			If myboard.TileCheck(TouchX(0)/tilesize,TouchY(0)/tilesize) = True
+ 				myboard.AddPiece(TouchX(0)/tilesize,TouchY(0)/tilesize,currentplayer)
+				If currentplayer = p1
+					currentplayer = p2
+					Else
+					currentplayer = p1
+				Endif
 			endif
 		Endif	
 		If KeyHit(KEY_R)
@@ -180,6 +181,14 @@ Class Grid
 		pieces[I(x,y)] = p
 		
 
+	End Method
+	
+	Method TileCheck:Bool(x:Int,y:Int)
+		If pieces[I(x,y)]
+			Return True 
+		Else
+			Return False
+			endif
 	End Method
 
 End Class
