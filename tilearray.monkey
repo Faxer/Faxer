@@ -14,7 +14,10 @@ Class MyApp Extends App
 	Field p1:= New Piece(40,40,100)
 	Field p2:= New Piece(255,0,100)
 	Field currentplayer:Piece  
-	Field Shortestside:int
+	Field Shortestside:Int
+	Field gamesize:Int = 10
+	Field offx:Int
+	Field offy:Int = 0
 
  
 	field tilesize:Int 
@@ -23,7 +26,9 @@ Class MyApp Extends App
 	
 	Method OnCreate:Int()
 		Local shortestside:Int
-		Local gamesize:Int = 15
+		
+
+
 		
 		If DeviceWidth() > DeviceHeight()
 			tilesize = DeviceHeight()/gamesize
@@ -31,12 +36,12 @@ Class MyApp Extends App
 			tilesize = DeviceWidth()/gamesize
 		endif
 			
-			
+		offx = DeviceWidth()/2-(gamesize/2*tilesize)
 	
  
 		SetUpdateRate(60) 	
 ' 
-		myboard = New Grid(15,15,tilesize)
+		myboard = New Grid(gamesize,gamesize,tilesize,offx,offy)
 		
 '		myboard.AddPiece(1,1,p1)
 '		myboard.AddPiece(2,1,p1) 
@@ -48,7 +53,7 @@ Class MyApp Extends App
 	Method OnUpdate:Int()
  		If TouchHit(0)
 
- 				myboard.AddPiece(TouchX(0)/tilesize,TouchY(0)/tilesize,currentplayer)
+ 				myboard.AddPiece(TouchX(0),TouchY(0),currentplayer)
 				If currentplayer = p1
 					currentplayer = p2
 					Else
@@ -127,11 +132,15 @@ Class Grid
 	Field teamsize:Int = 10
 	Field pieces:Piece[]
 	Field _tilesize:Int
-	
-	Method New (sx:Int,sy:Int,tilesize:Int)
+	Field _offsetx:Int
+	Field _offsety:Int
+		
+	Method New (sx:Int,sy:Int,tilesize:Int,offsetx:int,offsety:int)
 		_sx = sx
 		_sy = sy
 		_tilesize = tilesize
+		_offsetx = offsetx
+		_offsety = offsety
 		pieces = New Piece[_sx*_sy]
 
 	End Method
@@ -150,14 +159,14 @@ Class Grid
 	
 	Method Render:Void ()
 	
-		For Local y:Int = 0 Until _sy
-			For Local x:Int = 0  Until _sx
+		For Local y:Int = 0 Until _sy 
+			For Local x:Int = 0  Until _sx 
 			
 					SetColor(255,255,255)
-					DrawRect(x*_tilesize+1,y*_tilesize+1,_tilesize-2,_tilesize-2)
+					DrawRect(x*_tilesize+1+_offsetx,y*_tilesize+1+_offsety,_tilesize-2,_tilesize-2)
 
 				If pieces[I(x,y)]
-					pieces[I(x,y)].Draw(x*_tilesize,y*_tilesize,_tilesize)
+					pieces[I(x,y)].Draw(x*_tilesize+_offsetx,y*_tilesize+_offsety,_tilesize)
 	 
 			
 				Endif
@@ -180,12 +189,15 @@ Class Grid
 		Return y*_sx+x
 	End Method
 	
-	Method AddPiece:bool (x:Int,y:Int,p:Piece)
+	Method AddPiece:Bool (x:Int,y:Int,p:Piece)
+		Local gpos:= Screen2Me(x,y)
+			If gpos = Null Return False 
+			Print gpos.x + "," + gpos.y
 		
-		If pieces[I(x,y)]
+		If pieces[I(gpos.x,gpos.y)]
 			Return False
 			Else
-			pieces[I(x,y)] = p
+			pieces[I(gpos.x,gpos.y)] = p
 			Return true
 		Endif
 
@@ -196,7 +208,64 @@ Class Grid
 	
 	End Method
 	
+	Method Screen2Me:Vec2i(x:Int,y:Int)
+		Local myx:Int = (x-_offsetx)/_tilesize
+		Local myy:Int = (y-_offsety)/_tilesize
+		If myx < 0 Or myx > _sx
+			Return Null
+		Endif
+		If myy < 0 Or myy > _sy
+			Return Null
+		Endif
+		
+		Return New Vec2i((x-_offsetx)/_tilesize,(y-_offsety)/_tilesize)
+	End Method
 End Class
+
+Class Vec2i
+	Field x:Int
+	Field y:Int
+	
+	Method New (x:Int,y:Int)
+		Self.x=x
+		Self.y=y
+	
+	End Method
+
+
+End Class
+
+Function CreateSolutions:List<Grid>(size:Int)
+	Local Checkpiece:= New Piece(40,40,40)
+
+	Local glist:= New List<Grid>
+	Local ga:= New Grid(size,1)
+	glist.AddLast(ga)
+	Local gb:= New Grid(1,size)
+	glist.AddLast(gb)
+	Local gc:= New Grid(size,size)
+	glist.AddLast(gc)
+	Local gd:= New Grid(size,size)
+	glist.AddLast(gd)
+		For Local n:Int = 0 To size
+			ga.AddPiece(n,1)
+		Next
+		
+		For Local n:Int = 0 To size
+			gb.AddPiece(1,n)
+		Next
+		
+		For Local n:Int = 0 To size
+			gc.AddPiece(n,n)
+		Next
+		
+		For Local n:Int = size - 1 Until 0 Step -1
+			gd.Addpiece(n,n)
+		Next	
+	
+
+	Return glist
+End Function
 
 #rem
 Class Piece
