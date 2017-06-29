@@ -18,6 +18,7 @@ Class MyApp Extends App
 	Field gamesize:Int = 10
 	Field offx:Int
 	Field offy:Int = 0
+	Field solutions:List<Grid> 
 
  
 	field tilesize:Int 
@@ -27,6 +28,7 @@ Class MyApp Extends App
 	Method OnCreate:Int()
 		Local shortestside:Int
 		
+		
 
 
 		
@@ -34,7 +36,7 @@ Class MyApp Extends App
 			tilesize = DeviceHeight()/gamesize
 			Else
 			tilesize = DeviceWidth()/gamesize
-		endif
+		Endif
 			
 		offx = DeviceWidth()/2-(gamesize/2*tilesize)
 	
@@ -42,7 +44,9 @@ Class MyApp Extends App
 		SetUpdateRate(60) 	
 ' 
 		myboard = New Grid(gamesize,gamesize,tilesize,offx,offy)
-		
+
+
+		solutions = CreateSolutions(5,20)
 '		myboard.AddPiece(1,1,p1)
 '		myboard.AddPiece(2,1,p1) 
 		currentplayer = p1
@@ -75,7 +79,7 @@ Class MyApp Extends App
 		
 		If KeyHit(KEY_C)
 			myboard.Clear
-		endif
+		Endif
 
 		Return 0
 	End Method
@@ -83,7 +87,13 @@ Class MyApp Extends App
 	Method OnRender:Int()
 		Cls(100,150,150)
 '		mygrid.Render
-		myboard.Render
+		'myboard.Render
+		
+		For Local n:= Eachin solutions
+			
+			n.Render
+		
+		Next
  
 		Return 0
 	End Method
@@ -111,7 +121,7 @@ Class Piece
 		_b=b
 	End Method
 
-	Method Draw:Void(x:Float,y:Float,tilesize:int)
+	Method Draw:Void(x:Float,y:Float,tilesize:Int)
 		SetColor(_r,_g,_b)
 		DrawCircle(x+tilesize/2,y+tilesize/2,tilesize/2)		
 	End Method
@@ -135,7 +145,7 @@ Class Grid
 	Field _offsetx:Int
 	Field _offsety:Int
 		
-	Method New (sx:Int,sy:Int,tilesize:Int,offsetx:int,offsety:int)
+	Method New (sx:Int,sy:Int,tilesize:Int,offsetx:Int,offsety:Int)
 		_sx = sx
 		_sy = sy
 		_tilesize = tilesize
@@ -149,6 +159,8 @@ Class Grid
 	Method New()
 	'	Error "Grid New() : Call the constructor with paremeters!"
 	End Method
+	
+	
 	
  
 	
@@ -185,24 +197,32 @@ Class Grid
 	Method I:Int(x:Int,y:Int)
 	
 		
-	
+		
 		Return y*_sx+x
 	End Method
 	
 	Method AddPiece:Bool (x:Int,y:Int,p:Piece)
 		Local gpos:= Screen2Me(x,y)
-			If gpos = Null Return False 
+			'If gpos = Null Return False 
 			Print gpos.x + "," + gpos.y
 		
-		If pieces[I(gpos.x,gpos.y)]
+ 			Return AddPieceCore(gpos.x,gpos.y,p)
+
+	End Method
+	
+		Method AddPieceCore:Bool (x:Int,y:Int,p:Piece)
+		
+			'If gpos = Null Return False 
+
+		
+		If pieces[I(x,y)]
 			Return False
 			Else
-			pieces[I(gpos.x,gpos.y)] = p
+			pieces[I(x,y)] = p
 			Return true
 		Endif
 
 	End Method
-	
 	Method Clear:Void()
 		pieces = New Piece[_sx*_sy]
 	
@@ -235,32 +255,40 @@ Class Vec2i
 
 End Class
 
-Function CreateSolutions:List<Grid>(size:Int)
-	Local Checkpiece:= New Piece(40,40,40)
+Function CreateSolutions:List<Grid>(size:Int,tilesize:Int)
+	Local checkpiece:= New Piece(40,40,40)
 
 	Local glist:= New List<Grid>
-	Local ga:= New Grid(size,1)
-	glist.AddLast(ga)
-	Local gb:= New Grid(1,size)
+	Local ga:= New Grid(size,1,tilesize,0,0)
+	
+	
+		For Local n:Int = 0 Until size
+			ga.AddPieceCore(n,0,checkpiece)	
+			Print n
+		Next
+		
+		glist.AddLast(ga)	
+
+	
+
+	Local gb:= New Grid(1,size,tilesize,120,0)
 	glist.AddLast(gb)
-	Local gc:= New Grid(size,size)
+	Local gc:= New Grid(size,size,tilesize,200,0)
 	glist.AddLast(gc)
-	Local gd:= New Grid(size,size)
+	Local gd:= New Grid(size,size,tilesize,340,0)
 	glist.AddLast(gd)
-		For Local n:Int = 0 To size
-			ga.AddPiece(n,1)
+		
+		
+		For Local n:Int = 0 Until size
+			gb.AddPieceCore(0,n,checkpiece)
 		Next
 		
-		For Local n:Int = 0 To size
-			gb.AddPiece(1,n)
+		For Local n:Int = 0 Until size
+			gc.AddPieceCore(n,n,checkpiece)
 		Next
 		
-		For Local n:Int = 0 To size
-			gc.AddPiece(n,n)
-		Next
-		
-		For Local n:Int = size - 1 Until 0 Step -1
-			gd.Addpiece(n,n)
+		For Local n:Int = 0 Until size '- 1 Until 0 Step -1
+			gd.AddPieceCore(size-n-1,n,checkpiece)
 		Next	
 	
 
