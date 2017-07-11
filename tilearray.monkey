@@ -60,12 +60,13 @@ Class MyApp Extends App
  		If TouchHit(0)
 
  				myboard.AddPiece(TouchX(0),TouchY(0),currentplayer)
+ 				If CheckTiles(currentplayer) Print "Match"
 				If currentplayer = p1
 					currentplayer = p2
 					Else
 					currentplayer = p1
 				Endif
-				Print CheckTiles()
+				
 
 		Endif	
 		If KeyHit(KEY_R)
@@ -85,9 +86,7 @@ Class MyApp Extends App
 		Endif
 		
 		If KeyHit(KEY_P)
-			If CheckTiles() = False 
-				Print "good job"
-			Endif
+
 		endif
 		Return 0
 	End Method
@@ -106,15 +105,15 @@ Class MyApp Extends App
 		Return 0
 	End Method
 	
-	Method CheckTiles:Bool()
+	Method CheckTiles:Bool(p:Piece)
 		For Local s:= Eachin solutions
-			For Local bx:Int = 0 Until myboard._sx
-				For Local by:Int = 0 Until myboard._sy
+			For Local by:Int = 0 Until myboard._sy - s._sy
+				For Local bx:Int = 0 Until myboard._sx - s._sx
 					Local match:Bool = True
-					For Local sx:Int = 0 Until s._sx
-						For Local sy:Int = 0 Until s._sy
+					For Local sy:Int = 0 Until s._sy
+						For Local sx:Int = 0 Until s._sx
 							If s.pieces [s.I(sx,sy)]
-								If myboard.pieces[myboard.I(bx+sx,by+sy)]
+								If myboard.pieces[myboard.I(bx+sx,by+sy)] <> p
 						
 									match = False
 								Endif
