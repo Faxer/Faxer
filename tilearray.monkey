@@ -21,7 +21,7 @@ Class MyApp Extends App
 	Field solutions:List<Grid> 
 
  
-	field tilesize:Int 
+	Field tilesize:Int 
 
 	Field myboard:Grid  
 	
@@ -51,6 +51,8 @@ Class MyApp Extends App
 '		myboard.AddPiece(2,1,p1) 
 		currentplayer = p1
 		
+
+		
 		Return 0
 	End Method
 	
@@ -63,6 +65,7 @@ Class MyApp Extends App
 					Else
 					currentplayer = p1
 				Endif
+				Print CheckTiles()
 
 		Endif	
 		If KeyHit(KEY_R)
@@ -80,23 +83,51 @@ Class MyApp Extends App
 		If KeyHit(KEY_C)
 			myboard.Clear
 		Endif
-
+		
+		If KeyHit(KEY_P)
+			If CheckTiles() = False 
+				Print "good job"
+			Endif
+		endif
 		Return 0
 	End Method
 	
 	Method OnRender:Int()
 		Cls(100,150,150)
 '		mygrid.Render
-		'myboard.Render
+		myboard.Render
 		
-		For Local n:= Eachin solutions
+		'For Local n:= Eachin solutions
 			
-			n.Render
+			'n.Render
 		
-		Next
+		'Next
  
 		Return 0
 	End Method
+	
+	Method CheckTiles:Bool()
+		For Local s:= Eachin solutions
+			For Local bx:Int = 0 Until myboard._sx
+				For Local by:Int = 0 Until myboard._sy
+					Local match:Bool = True
+					For Local sx:Int = 0 Until s._sx
+						For Local sy:Int = 0 Until s._sy
+							If s.pieces [s.I(sx,sy)]
+								If myboard.pieces[myboard.I(bx+sx,by+sy)]
+						
+									match = False
+								Endif
+							Endif
+						Next
+					
+				Next
+				If match = True Return True
+			Next
+		Next
+		next
+		Return False
+	End method
 
 End Class
  
@@ -204,7 +235,7 @@ Class Grid
 	Method AddPiece:Bool (x:Int,y:Int,p:Piece)
 		Local gpos:= Screen2Me(x,y)
 			'If gpos = Null Return False 
-			Print gpos.x + "," + gpos.y
+		'	Print gpos.x + "," + gpos.y
 		
  			Return AddPieceCore(gpos.x,gpos.y,p)
 
@@ -219,7 +250,7 @@ Class Grid
 			Return False
 			Else
 			pieces[I(x,y)] = p
-			Return true
+			Return True
 		Endif
 
 	End Method
@@ -240,6 +271,9 @@ Class Grid
 		
 		Return New Vec2i((x-_offsetx)/_tilesize,(y-_offsety)/_tilesize)
 	End Method
+	
+	
+	
 End Class
 
 Class Vec2i
@@ -294,6 +328,10 @@ Function CreateSolutions:List<Grid>(size:Int,tilesize:Int)
 
 	Return glist
 End Function
+
+
+
+
 
 #rem
 Class Piece
