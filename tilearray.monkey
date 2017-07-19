@@ -24,9 +24,16 @@ Class MyApp Extends App
 	Field tilesize:Int 
 
 	Field myboard:Grid  
+
+	Field threeplayer:Grid
+	Field fourplayer:Grid
+	Field fiveplayer:Grid
 	
 	Method OnCreate:Int()
-		Local shortestside:Int
+		Local soffx:int
+		Local soffy:int = DeviceHeight()/2-tilesize
+		soffx = DeviceWidth()/2-(3/2*tilesize)
+
 		
 		
 
@@ -39,11 +46,21 @@ Class MyApp Extends App
 		Endif
 			
 		offx = DeviceWidth()/2-(gamesize/2*tilesize)
-	
+		
+'		threeplayer = New Grid(3,1,tilesize,DeviceWidth()/2-(3/2*tilesize),soffy)
+'		fourplayer = New Grid(4,1,tilesize,DeviceWidth()/2-(4/2*tilesize),soffy+tilesize)
+'		fiveplayer = New Grid(5,1,tilesize,DeviceWidth()/2-(5/2*tilesize),soffy+2*tilesize)
  
+		threeplayer = New Grid(3,1,tilesize,0,0)
+		fourplayer = New Grid(4,1,tilesize,0,tilesize)
+		fiveplayer = New Grid(5,1,tilesize,0,2*tilesize)
+
+
+
+
 		SetUpdateRate(60) 	
 ' 
-		myboard = New Grid(gamesize,gamesize,tilesize,offx,offy)
+		'myboard = New Grid(gamesize,gamesize,tilesize,offx,offy)
 
 
 		solutions = CreateSolutions(5,20)
@@ -92,8 +109,12 @@ Class MyApp Extends App
 	End Method
 	
 	Method OnRender:Int()
-		Cls(100,150,150)
+		Cls(currentplayer._r,currentplayer._g,currentplayer._b)
 '		mygrid.Render
+		threeplayer.Render
+		fourplayer.Render
+		fiveplayer.Render
+	
 		myboard.Render
 		
 		'For Local n:= Eachin solutions
