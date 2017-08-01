@@ -11,6 +11,78 @@ End Function
 
 
 Class MyApp Extends App
+Field presentstate:GameState 
+
+	
+	Method OnCreate:Int()
+		presentstate = New SecondState
+		
+		Return 0
+	End Method
+	
+	Method OnUpdate:Int()
+		presentstate.Update
+
+		Return 0
+	End Method
+	
+	Method OnRender:Int()
+		presentstate.Render
+
+		Return 0
+	End Method
+	
+
+End Class
+
+Class GameState 
+
+	Method Create:int() abstract
+	
+	
+	Method Update:Int() Abstract
+	
+	Method Render:Int() Abstract
+
+
+End Class
+ 
+ 
+Class FirstState Extends GameState
+	Field threeplayer:Grid
+	Field fourplayer:Grid
+	Field fiveplayer:Grid
+
+
+
+
+	Method Create:Int()
+		threeplayer = New Grid(3,1,tilesize,0,0)
+		fourplayer = New Grid(4,1,tilesize,0,tilesize)
+		fiveplayer = New Grid(5,1,tilesize,0,2*tilesize)
+		
+		Return 0
+	End Method
+	
+	Method Update:Int()
+	
+		Return 0
+	End Method
+	
+	Method Render:Int()
+		threeplayer.Render
+		fourplayer.Render
+		fiveplayer.Render
+		Return 0
+	End Method
+
+
+
+
+End Class
+
+
+Class SecondState Extends GameState
 	Field p1:= New Piece(40,40,100)
 	Field p2:= New Piece(255,0,100)
 	Field currentplayer:Piece  
@@ -25,13 +97,9 @@ Class MyApp Extends App
 
 	Field myboard:Grid  
 
-	Field threeplayer:Grid
-	Field fourplayer:Grid
-	Field fiveplayer:Grid
-	
-	Method OnCreate:Int()
-		Local soffx:int
-		Local soffy:int = DeviceHeight()/2-tilesize
+	Method Create:Int()
+		Local soffx:Int
+		Local soffy:Int = DeviceHeight()/2-tilesize
 		soffx = DeviceWidth()/2-(3/2*tilesize)
 
 		
@@ -51,16 +119,14 @@ Class MyApp Extends App
 '		fourplayer = New Grid(4,1,tilesize,DeviceWidth()/2-(4/2*tilesize),soffy+tilesize)
 '		fiveplayer = New Grid(5,1,tilesize,DeviceWidth()/2-(5/2*tilesize),soffy+2*tilesize)
  
-		threeplayer = New Grid(3,1,tilesize,0,0)
-		fourplayer = New Grid(4,1,tilesize,0,tilesize)
-		fiveplayer = New Grid(5,1,tilesize,0,2*tilesize)
+
 
 
 
 
 		SetUpdateRate(60) 	
 ' 
-		'myboard = New Grid(gamesize,gamesize,tilesize,offx,offy)
+		myboard = New Grid(gamesize,gamesize,tilesize,offx,offy)
 
 
 		solutions = CreateSolutions(5,20)
@@ -69,11 +135,10 @@ Class MyApp Extends App
 		currentplayer = p1
 		
 
-		
 		Return 0
 	End Method
 	
-	Method OnUpdate:Int()
+	Method Update:Int()
  		If TouchHit(0)
 
  				myboard.AddPiece(TouchX(0),TouchY(0),currentplayer)
@@ -104,16 +169,15 @@ Class MyApp Extends App
 		
 		If KeyHit(KEY_P)
 
-		endif
+		Endif
+	
 		Return 0
 	End Method
 	
-	Method OnRender:Int()
+	Method Render:Int() 
 		Cls(currentplayer._r,currentplayer._g,currentplayer._b)
 '		mygrid.Render
-		threeplayer.Render
-		fourplayer.Render
-		fiveplayer.Render
+
 	
 		myboard.Render
 		
@@ -123,10 +187,11 @@ Class MyApp Extends App
 		
 		'Next
  
+
 		Return 0
 	End Method
 	
-	Method CheckTiles:Bool(p:Piece)
+		Method CheckTiles:Bool(p:Piece)
 		For Local s:= Eachin solutions
 			For Local by:Int = 0 Until myboard._sy - s._sy
 				For Local bx:Int = 0 Until myboard._sx - s._sx
@@ -149,8 +214,8 @@ Class MyApp Extends App
 		Return False
 	End method
 
+
 End Class
- 
 
 Class Piece 
  
