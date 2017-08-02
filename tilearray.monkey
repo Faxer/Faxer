@@ -11,11 +11,21 @@ End Function
 
 
 Class MyApp Extends App
-Field presentstate:GameState 
+Field presentstate:AppState 
+Field gamesize:Int = 10
+Field tilesize:int
 
 	
 	Method OnCreate:Int()
-		presentstate = New SecondState
+
+		
+		If DeviceWidth() > DeviceHeight()
+			tilesize = DeviceHeight()/gamesize
+			Else
+			tilesize = DeviceWidth()/gamesize
+		Endif
+		
+		presentstate = New AppStateGame(tilesize,gamesize)
 		
 		Return 0
 	End Method
@@ -35,9 +45,9 @@ Field presentstate:GameState
 
 End Class
 
-Class GameState 
+Class AppState 
 
-	Method Create:int() abstract
+'	Method Create:int() abstract
 	
 	
 	Method Update:Int() Abstract
@@ -48,20 +58,21 @@ Class GameState
 End Class
  
  
-Class FirstState Extends GameState
+Class AppStateStart Extends AppState
 	Field threeplayer:Grid
 	Field fourplayer:Grid
 	Field fiveplayer:Grid
+	Field tilesize:Int
 
 
 
-
-	Method Create:Int()
+	Method New(tilesize:Int)
+		Self.tilesize = tilesize
 		threeplayer = New Grid(3,1,tilesize,0,0)
 		fourplayer = New Grid(4,1,tilesize,0,tilesize)
 		fiveplayer = New Grid(5,1,tilesize,0,2*tilesize)
 		
-		Return 0
+		
 	End Method
 	
 	Method Update:Int()
@@ -82,12 +93,13 @@ Class FirstState Extends GameState
 End Class
 
 
-Class SecondState Extends GameState
+Class AppStateGame Extends AppState
 	Field p1:= New Piece(40,40,100)
 	Field p2:= New Piece(255,0,100)
 	Field currentplayer:Piece  
 	Field Shortestside:Int
-	Field gamesize:Int = 10
+	Field gamesize:int
+
 	Field offx:Int
 	Field offy:Int = 0
 	Field solutions:List<Grid> 
@@ -97,7 +109,9 @@ Class SecondState Extends GameState
 
 	Field myboard:Grid  
 
-	Method Create:Int()
+	Method New(tilesize:Int,gamesize:int)
+		Self.tilesize = tilesize
+		Self.gamesize = gamesize
 		Local soffx:Int
 		Local soffy:Int = DeviceHeight()/2-tilesize
 		soffx = DeviceWidth()/2-(3/2*tilesize)
@@ -107,11 +121,7 @@ Class SecondState Extends GameState
 
 
 		
-		If DeviceWidth() > DeviceHeight()
-			tilesize = DeviceHeight()/gamesize
-			Else
-			tilesize = DeviceWidth()/gamesize
-		Endif
+
 			
 		offx = DeviceWidth()/2-(gamesize/2*tilesize)
 		
@@ -135,7 +145,7 @@ Class SecondState Extends GameState
 		currentplayer = p1
 		
 
-		Return 0
+		
 	End Method
 	
 	Method Update:Int()
