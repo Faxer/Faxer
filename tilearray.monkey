@@ -9,11 +9,19 @@ Function Main:Int()
 	Return 0	
 End Function
 
+Class RETVAL
+	Const startgame3:Int = 3
+	Const startgame4:Int = 4
+	Const startgame5:Int = 5
+	Const winner_p1:Int = 6
+	Const winner_p2:Int = 7
+End Class
+
 
 Class MyApp Extends App
 Field presentstate:AppState 
 Field gamesize:Int = 10
-Field tilesize:int
+Field tilesize:Int
 
 	
 	Method OnCreate:Int()
@@ -25,13 +33,27 @@ Field tilesize:int
 			tilesize = DeviceWidth()/gamesize
 		Endif
 		
-		presentstate = New AppStateGame(tilesize,gamesize)
-		
+		'presentstate = New AppStateGame(tilesize,gamesize)
+
+		presentstate = New AppStateStart(DeviceWidth()/16,DeviceHeight()/2)
+
 		Return 0
 	End Method
 	
 	Method OnUpdate:Int()
-		presentstate.Update
+	
+		Select presentstate.Update()
+			Case RETVAL.startgame3
+				presentstate = New AppStateGame(tilesize,gamesize,3)
+			Case RETVAL.startgame4
+				presentstate = New AppStateGame(tilesize,gamesize,4)
+			Case RETVAL.startgame5
+				presentstate = New AppStateGame(tilesize,gamesize,5)
+			Case RETVAL.winner_p1 
+				Print "Player 1 Wins"
+			Case RETVAL.winner_p2
+				Print "Player 2 Wins"				
+		End Select
 
 		Return 0
 	End Method
@@ -66,21 +88,30 @@ Class AppStateStart Extends AppState
 
 
 
-	Method New(tilesize:Int)
+	Method New(tilesize:Int,offy:Int)
 		Self.tilesize = tilesize
-		threeplayer = New Grid(3,1,tilesize,0,0)
-		fourplayer = New Grid(4,1,tilesize,0,tilesize)
-		fiveplayer = New Grid(5,1,tilesize,0,2*tilesize)
+		threeplayer = New Grid(3,1,tilesize,tilesize,offy)
+		fourplayer = New Grid(4,1,tilesize,5*tilesize,offy)
+		fiveplayer = New Grid(5,1,tilesize,10*tilesize,offy)
 		
 		
 	End Method
 	
 	Method Update:Int()
-	
+		If TouchHit(0)
+			If threeplayer.InsideMe(TouchX(0),TouchY(0))
+				Return RETVAL.startgame3
+			Elseif fourplayer.InsideMe(TouchX(0),TouchY(0))
+				Return RETVAL.startgame4
+			Elseif fiveplayer.InsideMe(TouchX(0),TouchY(0))
+				Return RETVAL.startgame5
+			Endif
+		Endif
 		Return 0
 	End Method
 	
 	Method Render:Int()
+		Cls(0,0,0)
 		threeplayer.Render
 		fourplayer.Render
 		fiveplayer.Render
@@ -98,18 +129,19 @@ Class AppStateGame Extends AppState
 	Field p2:= New Piece(255,0,100)
 	Field currentplayer:Piece  
 	Field Shortestside:Int
-	Field gamesize:int
+	Field gamesize:Int
 
 	Field offx:Int
 	Field offy:Int = 0
 	Field solutions:List<Grid> 
 
+	Field completematch:Grid
  
 	Field tilesize:Int 
 
 	Field myboard:Grid  
 
-	Method New(tilesize:Int,gamesize:int)
+	Method New(tilesize:Int,gamesize:Int,matches:Int)
 		Self.tilesize = tilesize
 		Self.gamesize = gamesize
 		Local soffx:Int
@@ -139,7 +171,7 @@ Class AppStateGame Extends AppState
 		myboard = New Grid(gamesize,gamesize,tilesize,offx,offy)
 
 
-		solutions = CreateSolutions(5,20)
+		solutions = CreateSolutions(matches,tilesize)
 '		myboard.AddPiece(1,1,p1)
 '		myboard.AddPiece(2,1,p1) 
 		currentplayer = p1
@@ -152,13 +184,18 @@ Class AppStateGame Extends AppState
  		If TouchHit(0)
 
  				myboard.AddPiece(TouchX(0),TouchY(0),currentplayer)
- 				If CheckTiles(currentplayer) Print "Match"
+ 				completematch = CompleteMatchFound(currentplayer) 
+
+ 				
+ 				
+ 				
 				If currentplayer = p1
 					currentplayer = p2
 					Else
 					currentplayer = p1
 				Endif
 				
+
 
 		Endif	
 		If KeyHit(KEY_R)
@@ -190,7 +227,7 @@ Class AppStateGame Extends AppState
 
 	
 		myboard.Render
-		
+		If completematch completematch.Render
 		'For Local n:= Eachin solutions
 			
 			'n.Render
@@ -201,7 +238,7 @@ Class AppStateGame Extends AppState
 		Return 0
 	End Method
 	
-		Method CheckTiles:Bool(p:Piece)
+		Method CompleteMatchFound:Grid(p:Piece)
 		For Local s:= Eachin solutions
 			For Local by:Int = 0 Until myboard._sy - s._sy
 				For Local bx:Int = 0 Until myboard._sx - s._sx
@@ -217,15 +254,19 @@ Class AppStateGame Extends AppState
 						Next
 					
 				Next
-				If match = True Return True
+				s._offsetx=bx*myboard._tilesize+myboard._offsetx
+				s._offsety=by*myboard._tilesize+myboard._offsety
+				s.showgrid = false
+				If match = True Return s
 			Next
 		Next
 		next
-		Return False
+		Return null
 	End method
 
 
 End Class
+
 
 Class Piece 
  
@@ -261,6 +302,25 @@ Class Piece
 
 End Class
 
+Class PieceSmiley Extends Piece
+
+	Method New (r:Int,g:Int,b:Int)
+		
+		Super.New(r,g,b)
+		
+	End Method
+
+
+	Method Draw:Void(x:Float,y:Float,tilesize:Int)
+		SetColor(_r,_g,_b)
+		DrawCircle(x+tilesize*0.25,y+tilesize*0.25,tilesize/5)	
+		DrawCircle(x+tilesize*0.75,y+tilesize*0.25,tilesize/5)	
+
+	End Method
+
+
+
+End class
 Class Grid
 	Field _sx:Int 
 	Field _sy:Int 
@@ -270,6 +330,7 @@ Class Grid
 	Field _tilesize:Int
 	Field _offsetx:Int
 	Field _offsety:Int
+	Field showgrid:Bool = true
 		
 	Method New (sx:Int,sy:Int,tilesize:Int,offsetx:Int,offsety:Int)
 		_sx = sx
@@ -300,9 +361,12 @@ Class Grid
 		For Local y:Int = 0 Until _sy 
 			For Local x:Int = 0  Until _sx 
 			
+				If showgrid 
 					SetColor(255,255,255)
+				
 					DrawRect(x*_tilesize+1+_offsetx,y*_tilesize+1+_offsety,_tilesize-2,_tilesize-2)
-
+				Endif
+				
 				If pieces[I(x,y)]
 					pieces[I(x,y)].Draw(x*_tilesize+_offsetx,y*_tilesize+_offsety,_tilesize)
 	 
@@ -367,7 +431,17 @@ Class Grid
 		Return New Vec2i((x-_offsetx)/_tilesize,(y-_offsety)/_tilesize)
 	End Method
 	
+	Method InsideMe:Bool(x:Int,y:Int)
+		
+		If x < _offsetx Return False
+		If y < _offsety Return False
+		If x > _offsetx + _tilesize*_sx Return False
+		If y > _offsety + _tilesize*_sy Return False
+		Return true
+		
 	
+	
+	End Method
 	
 End Class
 
@@ -385,7 +459,7 @@ Class Vec2i
 End Class
 
 Function CreateSolutions:List<Grid>(size:Int,tilesize:Int)
-	Local checkpiece:= New Piece(40,40,40)
+	Local checkpiece:= New PieceSmiley(40,40,40)
 
 	Local glist:= New List<Grid>
 	Local ga:= New Grid(size,1,tilesize,0,0)
@@ -423,8 +497,6 @@ Function CreateSolutions:List<Grid>(size:Int,tilesize:Int)
 
 	Return glist
 End Function
-
-
 
 
 
