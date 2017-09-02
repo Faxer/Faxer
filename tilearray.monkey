@@ -51,7 +51,7 @@ Field size:int
 		Select presentstate.Update()
 			Case RETVAL.startgame
 				size = presentstate.gamesize
-				presentstate = New AppStateGame(tilesize,size,match)
+				presentstate = New AppStateGame(size,match)
 			Case RETVAL.startgame3
 				match = 3
 				presentstate = New AppStateSize(tilesize,3)
@@ -83,7 +83,7 @@ Field size:int
 End Class
 
 Class AppState 
-	Field gamesize:int
+	Field gamesize:float
 
 '	Method Create:int() abstract
 	
@@ -199,7 +199,7 @@ Class AppStateGame Extends AppState
 	Field Shortestside:Int
 
 
-	Field offx:Int
+	Field offx:float
 	Field offy:Int = 0
 	Field solutions:List<Grid> 
 	
@@ -207,13 +207,16 @@ Class AppStateGame Extends AppState
 
 	Field completematch:Grid
  
-	Field tilesize:Int 
+	Field tilesize:Float
+
 
 	Field myboard:Grid  
 
-	Method New(tilesize:Int,gamesize:Int,matches:Int)
-		Self.tilesize = tilesize
+	Method New(gamesize:Int,matches:Int)
+	'	Self.tilesize = tilesize
 		Self.gamesize = gamesize
+		Self.tilesize = DeviceHeight()/gamesize
+
 		Local soffx:Int
 		Local soffy:Int = DeviceHeight()/2-tilesize
 		soffx = DeviceWidth()/2-(3/2*tilesize)
@@ -225,7 +228,7 @@ Class AppStateGame Extends AppState
 		
 
 			
-		offx = DeviceWidth()/2-(gamesize/2*tilesize)
+		offx = (DeviceWidth()/2-(gamesize/2*tilesize))
 		
 '		threeplayer = New Grid(3,1,tilesize,DeviceWidth()/2-(3/2*tilesize),soffy)
 '		fourplayer = New Grid(4,1,tilesize,DeviceWidth()/2-(4/2*tilesize),soffy+tilesize)
