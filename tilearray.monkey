@@ -153,9 +153,9 @@ Class AppStateSize Extends AppState
 		Self.tilesize = tilesize
 		Self.matches = matches
 		
-		grid1 = New Grid(matches,matches,tilesize,tilesize,DeviceHeight()/2-1.5*tilesize)
-		grid2 = New Grid(matches*2,matches*2,tilesize/2,tilesize*5,DeviceHeight()/2-1.5*tilesize) 
-		grid3 = New Grid(matches*3,matches*3,tilesize/3,tilesize*9,DeviceHeight()/2-1.5*tilesize)
+		grid1 = New Grid(matches,matches,tilesize*3/matches,tilesize,DeviceHeight()/2-1.5*tilesize)
+		grid2 = New Grid(matches*2,matches*2,tilesize*3/matches/2,tilesize*5,DeviceHeight()/2-1.5*tilesize) 
+		grid3 = New Grid(matches*3,matches*3,tilesize*3/matches/3,tilesize*9,DeviceHeight()/2-1.5*tilesize)
 	
 
   	End Method
@@ -479,7 +479,7 @@ Class Grid
 	End Method
 	
 	Method I:Int(x:Int,y:Int)
-	
+		
 		
 		
 		Return y*_sx+x
@@ -489,7 +489,8 @@ Class Grid
 		Local gpos:= Screen2Me(x,y)
 			'If gpos = Null Return False 
 		'	Print gpos.x + "," + gpos.y
-		
+		If Screen2Me(x,y) = Null Return False
+
  			Return AddPieceCore(gpos.x,gpos.y,p)
 
 	End Method
@@ -515,10 +516,10 @@ Class Grid
 	Method Screen2Me:Vec2i(x:Int,y:Int)
 		Local myx:Int = (x-_offsetx)/_tilesize
 		Local myy:Int = (y-_offsety)/_tilesize
-		If myx < 0 Or myx > _sx
+		If myx < 0 Or myx > _sx -1
 			Return Null
 		Endif
-		If myy < 0 Or myy > _sy
+		If myy < 0 Or myy > _sy -1
 			Return Null
 		Endif
 		
