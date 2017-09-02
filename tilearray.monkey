@@ -10,11 +10,13 @@ Function Main:Int()
 End Function
 
 Class RETVAL
+	Const startgame:Int = 1
 	Const startgame3:Int = 3
 	Const startgame4:Int = 4
 	Const startgame5:Int = 5
 	Const winner_p1:Int = 6
 	Const winner_p2:Int = 7
+	Const retry:Int = 8
 End Class
 
 
@@ -22,6 +24,8 @@ Class MyApp Extends App
 Field presentstate:AppState 
 Field gamesize:Int = 10
 Field tilesize:Int
+Field match:Int
+Field size:int
 
 	
 	Method OnCreate:Int()
@@ -36,6 +40,8 @@ Field tilesize:Int
 		'presentstate = New AppStateGame(tilesize,gamesize)
 
 		presentstate = New AppStateStart(DeviceWidth()/16,DeviceHeight()/2)
+		
+		
 
 		Return 0
 	End Method
@@ -43,22 +49,31 @@ Field tilesize:Int
 	Method OnUpdate:Int()
 	
 		Select presentstate.Update()
+			Case RETVAL.startgame
+				size = presentstate.gamesize
+				presentstate = New AppStateGame(tilesize,size,match)
 			Case RETVAL.startgame3
-				presentstate = New AppStateGame(tilesize,gamesize,3)
+				match = 3
+				presentstate = New AppStateSize(tilesize,3)
 			Case RETVAL.startgame4
-				presentstate = New AppStateGame(tilesize,gamesize,4)
+				match = 4
+				presentstate = New AppStateSize(tilesize,4)
 			Case RETVAL.startgame5
-				presentstate = New AppStateGame(tilesize,gamesize,5)
+				match = 5
+				presentstate = New AppStateSize(tilesize,5)
 			Case RETVAL.winner_p1 
 				Print "Player 1 Wins"
 			Case RETVAL.winner_p2
-				Print "Player 2 Wins"				
+				Print "Player 2 Wins"
+			Case RETVAL.retry 
+				presentstate = New AppStateStart(DeviceWidth()/16,DeviceHeight()/2)			
 		End Select
 
 		Return 0
 	End Method
 	
 	Method OnRender:Int()
+		Cls(0,0,0)
 		presentstate.Render
 
 		Return 0
@@ -68,6 +83,7 @@ Field tilesize:Int
 End Class
 
 Class AppState 
+	Field gamesize:int
 
 '	Method Create:int() abstract
 	
@@ -85,6 +101,7 @@ Class AppStateStart Extends AppState
 	Field fourplayer:Grid
 	Field fiveplayer:Grid
 	Field tilesize:Int
+
 
 
 
@@ -124,16 +141,69 @@ Class AppStateStart Extends AppState
 End Class
 
 
+Class AppStateSize Extends AppState
+	Field grid1:Grid
+	Field grid2:Grid
+	Field grid3:Grid
+	Field tilesize:Int
+	Field matches:Int
+
+
+	Method New(tilesize:int,matches:int)
+		Self.tilesize = tilesize
+		Self.matches = matches
+		
+		grid1 = New Grid(matches,matches,tilesize,tilesize,DeviceHeight()/2-1.5*tilesize)
+		grid2 = New Grid(matches*2,matches*2,tilesize/2,tilesize*5,DeviceHeight()/2-1.5*tilesize) 
+		grid3 = New Grid(matches*3,matches*3,tilesize/3,tilesize*9,DeviceHeight()/2-1.5*tilesize)
+	
+
+  	End Method
+  	
+  	Method Update:Int()
+  		If TouchHit(0)
+  			If grid1.InsideMe(TouchX(0),TouchY(0))
+  				gamesize = grid1._sx
+  				Return RETVAL.startgame
+  			Elseif grid2.InsideMe(TouchX(0),TouchY(0))
+  				gamesize = grid2._sx
+  				Return RETVAL.startgame
+  			Elseif grid3.InsideMe(TouchX(0),TouchY(0))
+  				gamesize = grid3._sx
+  				Return RETVAL.startgame
+  			endif
+  		endif
+  		Return 0
+  	End Method
+
+	Method MyGamesize:Int()
+	Return gamesize
+	End Method
+	
+	
+	Method Render:int()
+		grid1.Render
+		grid2.Render
+		grid3.Render
+		
+		Return 0
+	End method
+
+
+End class
+
 Class AppStateGame Extends AppState
 	Field p1:= New Piece(40,40,100)
 	Field p2:= New Piece(255,0,100)
 	Field currentplayer:Piece  
 	Field Shortestside:Int
-	Field gamesize:Int
+
 
 	Field offx:Int
 	Field offy:Int = 0
 	Field solutions:List<Grid> 
+	
+	field gameover:Bool = false
 
 	Field completematch:Grid
  
@@ -181,19 +251,35 @@ Class AppStateGame Extends AppState
 	End Method
 	
 	Method Update:Int()
+		
  		If TouchHit(0)
 
- 				myboard.AddPiece(TouchX(0),TouchY(0),currentplayer)
- 				completematch = CompleteMatchFound(currentplayer) 
+ 	'			myboard.AddPiece(TouchX(0),TouchY(0),currentplayer)
+			If gameover = false
+ 				If myboard.AddPiece(TouchX(0),TouchY(0),currentplayer)= true 
+			
+					completematch = CompleteMatchFound(currentplayer)
+					
+					If currentplayer = p1
+						currentplayer = p2
+						Else
+						currentplayer = p1
+					Endif
+				
+				Endif 			
+			Endif		
+			
+			If gameover = True
+				Return RETVAL.retry
+			endif
+				
+ 					
+ 		'		completematch = CompleteMatchFound(currentplayer) 
 
  				
  				
  				
-				If currentplayer = p1
-					currentplayer = p2
-					Else
-					currentplayer = p1
-				Endif
+
 				
 
 
@@ -227,7 +313,10 @@ Class AppStateGame Extends AppState
 
 	
 		myboard.Render
-		If completematch completematch.Render
+		If completematch 
+			completematch.Render
+			gameover = True
+		Endif
 		'For Local n:= Eachin solutions
 			
 			'n.Render
@@ -240,8 +329,8 @@ Class AppStateGame Extends AppState
 	
 		Method CompleteMatchFound:Grid(p:Piece)
 		For Local s:= Eachin solutions
-			For Local by:Int = 0 Until myboard._sy - s._sy
-				For Local bx:Int = 0 Until myboard._sx - s._sx
+			For Local by:Int = 0 to myboard._sy - s._sy
+				For Local bx:Int = 0 to myboard._sx - s._sx
 					Local match:Bool = True
 					For Local sy:Int = 0 Until s._sy
 						For Local sx:Int = 0 Until s._sx
@@ -313,8 +402,13 @@ Class PieceSmiley Extends Piece
 
 	Method Draw:Void(x:Float,y:Float,tilesize:Int)
 		SetColor(_r,_g,_b)
-		DrawCircle(x+tilesize*0.25,y+tilesize*0.25,tilesize/5)	
-		DrawCircle(x+tilesize*0.75,y+tilesize*0.25,tilesize/5)	
+		DrawCircle(x+tilesize*0.25,y+tilesize*0.35,tilesize/5)	
+		DrawCircle(x+tilesize*0.75,y+tilesize*0.35,tilesize/5)	
+		
+		DrawLine(x+tilesize*0.20,y+tilesize*0.65,x+tilesize*0.40,y+tilesize*0.85)
+		DrawLine(x+tilesize*0.40,y+tilesize*0.85,x+tilesize*0.60,y+tilesize*0.85)
+		DrawLine(x+tilesize*0.60,y+tilesize*0.85,x+tilesize*0.80,y+tilesize*0.65)
+
 
 	End Method
 
@@ -459,7 +553,7 @@ Class Vec2i
 End Class
 
 Function CreateSolutions:List<Grid>(size:Int,tilesize:Int)
-	Local checkpiece:= New PieceSmiley(40,40,40)
+	Local checkpiece:= New PieceSmiley(255,255,255)
 
 	Local glist:= New List<Grid>
 	Local ga:= New Grid(size,1,tilesize,0,0)
