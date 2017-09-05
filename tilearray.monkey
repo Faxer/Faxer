@@ -195,7 +195,7 @@ End class
 Class AppStateGame Extends AppState
 	Field p1:= New Piece(40,40,100)
 	Field p2:= New Piece(255,0,100)
-	Field maskpiece:= New MaskPiece(255,255,255)
+	Field maskpiece:= New MaskPiece(0,0,0)
 	Field currentplayer:Piece  
 	Field Shortestside:Int
 
@@ -250,6 +250,7 @@ Class AppStateGame Extends AppState
 '		myboard.AddPiece(2,1,p1) 
 		currentplayer = p1
 		
+		myboard.AddPiece(1,1,maskpiece)
 
 		
 	End Method
@@ -363,13 +364,14 @@ End Class
 
 Class Piece 
  
- 	Field piecetype:int
+ 	Field piecetype:Int 
 	Field _r:Int  
 	Field _g:Int 
 	Field _b:Int 
 
 	Method New()
-	
+		
+		piecetype = 0
 		_r = 40'Rnd(0,255)
 		_g = 40'Rnd(0,255)		
 		_b = 40'Rnd(0,255)
@@ -423,7 +425,12 @@ End Class
 
 Class MaskPiece Extends Piece
 
-	Method New()
+	Method New(r:int,g:int,b:int)
+	
+	
+		_r = r
+		_g = g
+		_b = b
 		piecetype = 1
 	End Method
 	
@@ -447,6 +454,7 @@ Class Grid
 		_offsetx = offsetx
 		_offsety = offsety
 		pieces = New Piece[_sx*_sy]
+		
 
 	End Method
 	
@@ -472,12 +480,12 @@ Class Grid
 				If showgrid 
 					SetColor(255,255,255)
 					
-					If Not pieces[I(x,y)] Or pieces[I(x,y)]
+					If Not pieces[I(x,y)] Or pieces[I(x,y)].piecetype <> 1
 						DrawRect(x*_tilesize+1+_offsetx,y*_tilesize+1+_offsety,_tilesize-2,_tilesize-2)
 					endif
 				Endif
 				
-				If pieces[I(x,y)]
+				If pieces[I(x,y)] And pieces[I(x,y)].piecetype <> 1
 					pieces[I(x,y)].Draw(x*_tilesize+_offsetx,y*_tilesize+_offsety,_tilesize)
 	 
 			
