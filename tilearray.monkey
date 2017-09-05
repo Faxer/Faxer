@@ -195,6 +195,7 @@ End class
 Class AppStateGame Extends AppState
 	Field p1:= New Piece(40,40,100)
 	Field p2:= New Piece(255,0,100)
+	Field maskpiece:= New MaskPiece(255,255,255)
 	Field currentplayer:Piece  
 	Field Shortestside:Int
 
@@ -362,6 +363,7 @@ End Class
 
 Class Piece 
  
+ 	Field piecetype:int
 	Field _r:Int  
 	Field _g:Int 
 	Field _b:Int 
@@ -417,7 +419,16 @@ Class PieceSmiley Extends Piece
 
 
 
-End class
+End Class
+
+Class MaskPiece Extends Piece
+
+	Method New()
+		piecetype = 1
+	End Method
+	
+End Class
+
 Class Grid
 	Field _sx:Int 
 	Field _sy:Int 
@@ -460,8 +471,10 @@ Class Grid
 			
 				If showgrid 
 					SetColor(255,255,255)
-				
-					DrawRect(x*_tilesize+1+_offsetx,y*_tilesize+1+_offsety,_tilesize-2,_tilesize-2)
+					
+					If Not pieces[I(x,y)] Or pieces[I(x,y)]
+						DrawRect(x*_tilesize+1+_offsetx,y*_tilesize+1+_offsety,_tilesize-2,_tilesize-2)
+					endif
 				Endif
 				
 				If pieces[I(x,y)]
