@@ -212,6 +212,8 @@ Class AppStateGame Extends AppState
 
 
 	Field myboard:Grid  
+	
+	Field tie:Bool 
 
 	Method New(gamesize:Int,matches:Int)
 	'	Self.tilesize = tilesize
@@ -230,6 +232,10 @@ Class AppStateGame Extends AppState
 
 			
 		offx = (DeviceWidth()/2-(gamesize/2*tilesize))
+		Print "DeviceWidth:" + DeviceWidth()
+		Print "gamesize:" + gamesize
+		Print "tilesize:" + tilesize
+		Print "offx:" + offx
 		
 '		threeplayer = New Grid(3,1,tilesize,DeviceWidth()/2-(3/2*tilesize),soffy)
 '		fourplayer = New Grid(4,1,tilesize,DeviceWidth()/2-(4/2*tilesize),soffy+tilesize)
@@ -250,8 +256,10 @@ Class AppStateGame Extends AppState
 '		myboard.AddPiece(2,1,p1) 
 		currentplayer = p1
 		
-		myboard.AddPiece(1,1,maskpiece)
-
+'		If matches = 3 And gamesize = matches*3
+'			myboard.AddPiece(offx,offy,maskpiece)
+'			myboard.AddPiece(offx,offy,maskpiece)
+'		endif
 		
 	End Method
 	
@@ -308,7 +316,26 @@ Class AppStateGame Extends AppState
 		If KeyHit(KEY_P)
 
 		Endif
-	
+		
+		
+'		For Local x:Int = 0Until gamesize 
+'			Local istie:Bool = True
+'			For Local y:Int = 0 Until gamesize 
+'
+	'			If Not myboard.pieces[myboard.I(x,y)]
+	'				istie = False
+	'			endif
+	'		
+	'		Next
+	'		
+	'		tie = istie
+	'	next
+		
+		
+		If tie = True
+			Return RETVAL.retry
+
+		Endif
 		Return 0
 	End Method
 	
@@ -334,8 +361,11 @@ Class AppStateGame Extends AppState
 	
 		Method CompleteMatchFound:Grid(p:Piece)
 		For Local s:= Eachin solutions
-			For Local by:Int = 0 to myboard._sy - s._sy
-				For Local bx:Int = 0 to myboard._sx - s._sx
+		
+			For Local by:Int = 0 To myboard._sy - s._sy
+
+				For Local bx:Int = 0 To myboard._sx - s._sx
+
 					Local match:Bool = True
 					For Local sy:Int = 0 Until s._sy
 						For Local sx:Int = 0 Until s._sx
@@ -347,18 +377,44 @@ Class AppStateGame Extends AppState
 							Endif
 						Next
 					
-				Next
+					Next
 				s._offsetx=bx*myboard._tilesize+myboard._offsetx
 				s._offsety=by*myboard._tilesize+myboard._offsety
 				s.showgrid = false
 				If match = True Return s
+
 			Next
+
 		Next
-		next
+		Next
+		tie = IsDraw()
 		Return null
-	End method
-
-
+	End Method
+	
+	Method IsDraw:Bool()
+		Local isdraw:Bool = False
+		Local istie:int
+	
+		For Local x:Int = 0 Until myboard._sx
+		'	Local istie:int
+			For Local y:Int = 0 Until myboard._sy
+				If  myboard.pieces[myboard.I(x,y)]
+					istie += 1
+					Print istie
+				Endif
+			Next
+			If istie = myboard._sx*myboard._sy
+				isdraw = True
+			Endif
+		
+		Next
+		
+		
+		Return isdraw
+				
+	
+	
+	End Method
 End Class
 
 
