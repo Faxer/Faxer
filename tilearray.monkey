@@ -289,8 +289,7 @@ Class AppStateGame Extends AppState
  					
  		'		completematch = CompleteMatchFound(currentplayer) 
 
- 				
- 				
+
  				
 
 				
@@ -331,11 +330,13 @@ Class AppStateGame Extends AppState
 	'		tie = istie
 	'	next
 		
-		
-		If tie = True
-			Return RETVAL.retry
+ 			If tie = True
+ 				gameover = true
+				'	Return RETVAL.retry
+				
+			Endif	
+ 				
 
-		Endif
 		Return 0
 	End Method
 	
