@@ -1,6 +1,6 @@
 Strict
 Import Mojo
-#ABDROID_SCREEN_ORIENTATION = "landscape"
+#ANDROID_SCREEN_ORIENTATION = "landscape"
 
 Function Main:Int()
 
