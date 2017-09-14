@@ -476,21 +476,22 @@ Class PieceSmiley Extends Piece
 		DrawCircle(x+tilesize*0.25,y+tilesize*0.35,tilesize/5)	
 		DrawCircle(x+tilesize*0.75,y+tilesize*0.35,tilesize/5)	
 		
-		DrawLine(x+tilesize*0.20,y+tilesize*0.65,x+tilesize*0.40,y+tilesize*0.85)
-		DrawLine(x+tilesize*0.40,y+tilesize*0.85,x+tilesize*0.60,y+tilesize*0.85)
-		DrawLine(x+tilesize*0.60,y+tilesize*0.85,x+tilesize*0.80,y+tilesize*0.65)
-		
-		DrawLine(x+tilesize*0.20,y+1+tilesize*0.65,x+tilesize*0.40,y+1+tilesize*0.85)
-		DrawLine(x+tilesize*0.40,y+1+tilesize*0.85,x+tilesize*0.60,y+1+tilesize*0.85)
-		DrawLine(x+tilesize*0.60,y+1+tilesize*0.85,x+tilesize*0.80,y+1+tilesize*0.65)
-		
-		DrawLine(x+tilesize*0.20,y+2+tilesize*0.65,x+tilesize*0.40,y+2+tilesize*0.85)
-		DrawLine(x+tilesize*0.40,y+2+tilesize*0.85,x+tilesize*0.60,y+2+tilesize*0.85)
-		DrawLine(x+tilesize*0.60,y+2+tilesize*0.85,x+tilesize*0.80,y+2+tilesize*0.65)
-		
-		DrawEllipse(x+tilesize*0.5,y+tilesize*0.75,tilesize*0.4,tilesize*0.15)
-		SetColor(currentplayer._r,currentplayer._g,currentplayer._b)
+'		
+'		DrawLine(x+tilesize*0.20,y+tilesize*0.65,x+tilesize*0.40,y+tilesize*0.85)
+'		DrawLine(x+tilesize*0.40,y+tilesize*0.85,x+tilesize*0.60,y+tilesize*0.85)
+'		DrawLine(x+tilesize*0.60,y+tilesize*0.85,x+tilesize*0.80,y+tilesize*0.65)
+'		
+'		DrawLine(x+tilesize*0.20,y+1+tilesize*0.65,x+tilesize*0.40,y+1+tilesize*0.85)
+'		DrawLine(x+tilesize*0.40,y+1+tilesize*0.85,x+tilesize*0.60,y+1+tilesize*0.85)
+'		DrawLine(x+tilesize*0.60,y+1+tilesize*0.85,x+tilesize*0.80,y+1+tilesize*0.65)
+'		
+'		DrawLine(x+tilesize*0.20,y+2+tilesize*0.65,x+tilesize*0.40,y+2+tilesize*0.85)
+'		DrawLine(x+tilesize*0.40,y+2+tilesize*0.85,x+tilesize*0.60,y+2+tilesize*0.85)
+'		DrawLine(x+tilesize*0.60,y+2+tilesize*0.85,x+tilesize*0.80,y+2+tilesize*0.65)
+'		
 		DrawEllipse(x+tilesize*0.5,y+tilesize*0.70,tilesize*0.4,tilesize*0.15)
+		SetColor(currentplayer._r,currentplayer._g,currentplayer._b)
+		DrawEllipse(x+tilesize*0.5,y+tilesize*0.65,tilesize*0.4,tilesize*0.105)
 
 
 	End Method
