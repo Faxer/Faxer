@@ -39,7 +39,9 @@ Field size:int
 		
 		'presentstate = New AppStateGame(tilesize,gamesize)
 
-		presentstate = New AppStateStart(DeviceWidth()/16,DeviceHeight()/2-tilesize/2)
+		presentstate = New AppStateStart(DeviceWidth()/16,(DeviceHeight()-tilesize)/2)
+		Print "Off:" + ((DeviceHeight()-tilesize)/2)
+		Print "DH:" + DeviceHeight()+tilesize 
 		
 		
 
@@ -105,7 +107,7 @@ Class AppStateStart Extends AppState
 
 
 
-	Method New(tilesize:Int,offy:Int)
+	Method New(tilesize:Int,offy:int)
 		Self.tilesize = tilesize
 		threeplayer = New Grid(3,1,tilesize,tilesize,offy)
 		fourplayer = New Grid(4,1,tilesize,5*tilesize,offy)
@@ -150,12 +152,13 @@ Class AppStateSize Extends AppState
 
 
 	Method New(tilesize:int,matches:int)
-		Self.tilesize = tilesize
+	'	Self.tilesize = tilesize
+		Self.tilesize = DeviceWidth()/13
 		Self.matches = matches
 		
-		grid1 = New Grid(matches,matches,tilesize*3/matches,tilesize,DeviceHeight()/2-1.5*tilesize)
-		grid2 = New Grid(matches*2,matches*2,tilesize*3/matches/2,tilesize*5,DeviceHeight()/2-1.5*tilesize) 
-		grid3 = New Grid(matches*3,matches*3,tilesize*3/matches/3,tilesize*9,DeviceHeight()/2-1.5*tilesize)
+		grid1 = New Grid(matches,matches,Self.tilesize*3/matches,Self.tilesize,DeviceHeight()/2-1.5*Self.tilesize)
+		grid2 = New Grid(matches*2,matches*2,Self.tilesize*3/matches/2,Self.tilesize*5,DeviceHeight()/2-1.5*Self.tilesize) 
+		grid3 = New Grid(matches*3,matches*3,Self.tilesize*3/matches/3,Self.tilesize*9,DeviceHeight()/2-1.5*Self.tilesize)
 	
 
   	End Method
@@ -252,12 +255,11 @@ Class AppStateGame Extends AppState
 		SetUpdateRate(60) 	
 ' 
 		myboard = New Grid(gamesize,gamesize,tilesize,offx,offy)
+		currentplayer = p1
 
-
-		solutions = CreateSolutions(matches,tilesize)
+		solutions = CreateSolutions(matches,tilesize,currentplayer)
 '		myboard.AddPiece(1,1,p1)
 '		myboard.AddPiece(2,1,p1) 
-		currentplayer = p1
 		
 '		If matches = 3 And gamesize = matches*3
 '			myboard.AddPiece(offx,offy,maskpiece)
@@ -444,7 +446,7 @@ Class Piece
 		_b=b
 	End Method
 
-	Method Draw:Void(x:Float,y:Float,tilesize:Int)
+	Method Draw:Void(x:Float,y:Float,tilesize:int)
 		SetColor(_r,_g,_b)
 		DrawCircle(x+tilesize/2,y+tilesize/2,tilesize/2)		
 	End Method
@@ -459,15 +461,17 @@ Class Piece
 End Class
 
 Class PieceSmiley Extends Piece
+	Field currentplayer:Piece
+	Method New (r:Int,g:Int,b:Int,currentplayer:Piece)
 
-	Method New (r:Int,g:Int,b:Int)
 		
 		Super.New(r,g,b)
-		
+
+		Self.currentplayer = currentplayer		
 	End Method
 
 
-	Method Draw:Void(x:Float,y:Float,tilesize:Int)
+	Method Draw:Void(x:Float,y:Float,tilesize:int)
 		SetColor(_r,_g,_b)
 		DrawCircle(x+tilesize*0.25,y+tilesize*0.35,tilesize/5)	
 		DrawCircle(x+tilesize*0.75,y+tilesize*0.35,tilesize/5)	
@@ -475,6 +479,18 @@ Class PieceSmiley Extends Piece
 		DrawLine(x+tilesize*0.20,y+tilesize*0.65,x+tilesize*0.40,y+tilesize*0.85)
 		DrawLine(x+tilesize*0.40,y+tilesize*0.85,x+tilesize*0.60,y+tilesize*0.85)
 		DrawLine(x+tilesize*0.60,y+tilesize*0.85,x+tilesize*0.80,y+tilesize*0.65)
+		
+		DrawLine(x+tilesize*0.20,y+1+tilesize*0.65,x+tilesize*0.40,y+1+tilesize*0.85)
+		DrawLine(x+tilesize*0.40,y+1+tilesize*0.85,x+tilesize*0.60,y+1+tilesize*0.85)
+		DrawLine(x+tilesize*0.60,y+1+tilesize*0.85,x+tilesize*0.80,y+1+tilesize*0.65)
+		
+		DrawLine(x+tilesize*0.20,y+2+tilesize*0.65,x+tilesize*0.40,y+2+tilesize*0.85)
+		DrawLine(x+tilesize*0.40,y+2+tilesize*0.85,x+tilesize*0.60,y+2+tilesize*0.85)
+		DrawLine(x+tilesize*0.60,y+2+tilesize*0.85,x+tilesize*0.80,y+2+tilesize*0.65)
+		
+		DrawEllipse(x+tilesize*0.5,y+tilesize*0.75,tilesize*0.4,tilesize*0.15)
+		SetColor(currentplayer._r,currentplayer._g,currentplayer._b)
+		DrawEllipse(x+tilesize*0.5,y+tilesize*0.70,tilesize*0.4,tilesize*0.15)
 
 
 	End Method
@@ -637,8 +653,8 @@ Class Vec2i
 
 End Class
 
-Function CreateSolutions:List<Grid>(size:Int,tilesize:Int)
-	Local checkpiece:= New PieceSmiley(255,255,255)
+Function CreateSolutions:List<Grid>(size:Int,tilesize:Int,currentplayer:Piece)
+	Local checkpiece:= New PieceSmiley(255,255,255,currentplayer)
 
 	Local glist:= New List<Grid>
 	Local ga:= New Grid(size,1,tilesize,0,0)
