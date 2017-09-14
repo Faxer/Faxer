@@ -1,6 +1,6 @@
 Strict
 Import Mojo
-
+#ABDROID_SCREEN_ORIENTATION = "landscape"
 
 Function Main:Int()
 
@@ -229,9 +229,12 @@ Class AppStateGame Extends AppState
 
 
 		
-
-			
-		offx = (DeviceWidth()/2-(gamesize/2*tilesize))
+		If gamesize = 3
+			offx = (DeviceWidth()/2-(gamesize/2*tilesize))/2
+		else
+			offx = (DeviceWidth()/2-(gamesize/2*tilesize))
+		Endif
+		
 		Print "DeviceWidth:" + DeviceWidth()
 		Print "gamesize:" + gamesize
 		Print "tilesize:" + tilesize
