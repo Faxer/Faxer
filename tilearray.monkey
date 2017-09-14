@@ -39,7 +39,7 @@ Field size:int
 		
 		'presentstate = New AppStateGame(tilesize,gamesize)
 
-		presentstate = New AppStateStart(DeviceWidth()/16,DeviceHeight()/2)
+		presentstate = New AppStateStart(DeviceWidth()/16,DeviceHeight()/2-tilesize/2)
 		
 		
 
@@ -215,7 +215,7 @@ Class AppStateGame Extends AppState
 	
 	Field tie:Bool 
 
-	Method New(gamesize:Int,matches:Int)
+	Method New(gamesize:float,matches:Int)
 	'	Self.tilesize = tilesize
 		Self.gamesize = gamesize
 		Self.tilesize = DeviceHeight()/gamesize
@@ -229,11 +229,11 @@ Class AppStateGame Extends AppState
 
 
 		
-		If gamesize = 3
-			offx = (DeviceWidth()/2-(gamesize/2*tilesize))/2
-		else
+'		If gamesize = 3
+'			offx = (DeviceWidth()/2-(gamesize/2*tilesize))/2
+'		Else
 			offx = (DeviceWidth()/2-(gamesize/2*tilesize))
-		Endif
+'		Endif
 		
 		Print "DeviceWidth:" + DeviceWidth()
 		Print "gamesize:" + gamesize
