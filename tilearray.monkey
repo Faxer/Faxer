@@ -17,6 +17,7 @@ Class RETVAL
 	Const winner_p1:Int = 6
 	Const winner_p2:Int = 7
 	Const retry:Int = 8
+	Const moodhappy:int = 1
 End Class
 
 
@@ -196,8 +197,8 @@ Class AppStateSize Extends AppState
 End class
 
 Class AppStateGame Extends AppState
-	Field p1:= New Piece(40,40,100)
-	Field p2:= New Piece(255,0,100)
+	Field p1:= New Piece(1,40,40,100)
+	Field p2:= New Piece(2,255,0,100)
 	Field maskpiece:= New MaskPiece(0,0,0)
 	Field currentplayer:Piece  
 	Field Shortestside:Int
@@ -274,7 +275,7 @@ Class AppStateGame Extends AppState
 
  	'			myboard.AddPiece(TouchX(0),TouchY(0),currentplayer)
 			If gameover = false
- 				If myboard.AddPiece(TouchX(0),TouchY(0),currentplayer)= true 
+ 				If myboard.AddPiece(TouchX(0),TouchY(0),currentplayer.Clone())= True 
 			
 					completematch = CompleteMatchFound(currentplayer)
 					
@@ -376,9 +377,12 @@ Class AppStateGame Extends AppState
 					For Local sy:Int = 0 Until s._sy
 						For Local sx:Int = 0 Until s._sx
 							If s.pieces [s.I(sx,sy)]
-								If myboard.pieces[myboard.I(bx+sx,by+sy)] <> p
-						
-									match = False
+								If myboard.pieces[myboard.I(bx+sx,by+sy)]<>null
+									If myboard.pieces[myboard.I(bx+sx,by+sy)].ownerid <> p.ownerid
+										match = False
+									Endif 
+								Else
+									match = false
 								Endif
 							Endif
 						Next
@@ -426,6 +430,7 @@ End Class
 
 Class Piece 
  
+ 	Field ownerid:int
  	Field piecetype:Int 
 	Field _r:Int  
 	Field _g:Int 
@@ -440,7 +445,8 @@ Class Piece
 	
 	End Method
 	
-	Method New (r:Int,g:Int,b:Int)
+	Method New (ownerid:Int,r:Int,g:Int,b:Int)
+		Self.ownerid = ownerid
 		_r=r
 		_g=g
 		_b=b
@@ -457,6 +463,10 @@ Class Piece
 		'Self.b = Rnd(0,255)	
 	End Method
 
+	Method Clone:Piece()
+		Local p:= New Piece(ownerid,_r,_g,_b)
+		Return p
+	End Method
 
 End Class
 
@@ -465,7 +475,7 @@ Class PieceSmiley Extends Piece
 	Method New (r:Int,g:Int,b:Int,currentplayer:Piece)
 
 		
-		Super.New(r,g,b)
+		Super.New(0,r,g,b)
 
 		Self.currentplayer = currentplayer		
 	End Method
