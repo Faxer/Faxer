@@ -498,7 +498,10 @@ Class PieceSmiley Extends Piece
 
 
 	Method Draw:Void(x:Float,y:Float,tilesize:int)
-
+		SetColor(_r,_g,_b)
+		DrawCircle(x+tilesize*0.25,y+tilesize*0.35,tilesize/5)	
+		DrawCircle(x+tilesize*0.75,y+tilesize*0.35,tilesize/5)	
+		
 '		
 '		DrawLine(x+tilesize*0.20,y+tilesize*0.65,x+tilesize*0.40,y+tilesize*0.85)
 '		DrawLine(x+tilesize*0.40,y+tilesize*0.85,x+tilesize*0.60,y+tilesize*0.85)
@@ -512,6 +515,7 @@ Class PieceSmiley Extends Piece
 '		DrawLine(x+tilesize*0.40,y+2+tilesize*0.85,x+tilesize*0.60,y+2+tilesize*0.85)
 '		DrawLine(x+tilesize*0.60,y+2+tilesize*0.85,x+tilesize*0.80,y+2+tilesize*0.65)
 '		
+<<<<<<< HEAD
 '		DrawEllipse(x+tilesize*0.5,y+tilesize*0.70,tilesize*0.4,tilesize*0.15)
 '		SetColor(currentplayer._r,currentplayer._g,currentplayer._b)
 '		DrawEllipse(x+tilesize*0.5,y+tilesize*0.6,tilesize*0.4,tilesize*0.15)
@@ -519,6 +523,11 @@ Class PieceSmiley Extends Piece
 '		SetColor(_r,_g,_b)
 '		DrawCircle(x+tilesize*0.25,y+tilesize*0.35,tilesize/5)	
 '		DrawCircle(x+tilesize*0.75,y+tilesize*0.35,tilesize/5)	
+=======
+		DrawEllipse(x+tilesize*0.5,y+tilesize*0.70,tilesize*0.4,tilesize*0.15)
+		SetColor(currentplayer._r,currentplayer._g,currentplayer._b)
+		DrawEllipse(x+tilesize*0.5,y+tilesize*0.65,tilesize*0.4,tilesize*0.105)
+>>>>>>> parent of 9103a01... lazy
 
 
 	End Method
