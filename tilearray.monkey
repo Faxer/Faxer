@@ -181,7 +181,10 @@ Class AppStateSize Extends AppState
   			Elseif grid3.InsideMe(TouchX(0),TouchY(0))
   				gamesize = grid3._sx
   				Return RETVAL.startgame
-  			endif
+  			Endif
+  		Endif
+  		If KeyHit(KEY_BACKSPACE)
+  			Return RETVAL.retry
   		endif
   		Return 0
   	End Method
@@ -336,6 +339,10 @@ Class AppStateGame Extends AppState
 
 		Endif
 		
+		If KeyHit(KEY_BACKSPACE)
+			Return RETVAL.retry
+		endif
+		
 		
 '		For Local x:Int = 0Until gamesize 
 '			Local istie:Bool = True
@@ -351,6 +358,7 @@ Class AppStateGame Extends AppState
 	'	next
 		
  			If tie = True
+ 				myboard.SetMood(myboard.GetPositions(),MOOD.indifferent)
  				gameover = true
 				'	Return RETVAL.retry
 				
@@ -399,8 +407,11 @@ Class AppStateGame Extends AppState
 						Next
 					
 					Next
-				s._offsetx=bx
-				s._offsety=by
+	'			s._offsetx=bx
+	'			s._offsety=by
+				s.gridspacex=bx
+				s.gridspacex=by				
+			
 				s.showgrid = false
 				If match = True Return s
 
@@ -476,7 +487,13 @@ Class Piece
 			SetColor(255,255,255)
 			DrawCircle(x+tilesize*0.25,y+tilesize*0.35,tilesize/5)	
 			DrawCircle(x+tilesize*0.75,y+tilesize*0.35,tilesize/5)	
-		endif
+		Elseif mood = MOOD.indifferent
+			SetColor(255,255,255)
+			DrawRect(x+tilesize/4,y+0.7*tilesize,tilesize/2,tilesize/8)
+			DrawCircle(x+tilesize*0.25,y+tilesize*0.35,tilesize/5)	
+			DrawCircle(x+tilesize*0.75,y+tilesize*0.35,tilesize/5)	
+		Endif
+		
 	End Method
 	
 	Method Update:Void()
@@ -555,7 +572,9 @@ Class Grid
 	Field _tilesize:Int
 	Field _offsetx:Int
 	Field _offsety:Int
-	Field showgrid:Bool = true
+	Field showgrid:Bool = True
+	Field gridspacex:Int
+	Field gridspacey:int
 		
 	Method New (sx:Int,sy:Int,tilesize:Int,offsetx:Int,offsety:Int)
 		_sx = sx
@@ -678,7 +697,7 @@ Class Grid
 		For Local x:Int = 0 Until _sx
 			For Local y:Int = 0 Until _sy
 				If pieces[I(x,y)] 
-					positions.AddLast(New Vec2i(x+_offsetx,y+_offsety))
+					positions.AddLast(New Vec2i(x+gridspacex,y+gridspacex))
 				Endif
 			Next
 		Next
