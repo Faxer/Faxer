@@ -164,6 +164,11 @@ Class AppStateSize Extends AppState
   	End Method
   	
   	Method Update:Int()
+   		If KeyHit(KEY_BACKSPACE)
+  			Return RETVAL.retry
+  		Endif 
+  		
+  	
   		If TouchHit(0)
   			If grid1.InsideMe(TouchX(0),TouchY(0))
   				gamesize = grid1._sx
@@ -196,8 +201,8 @@ Class AppStateSize Extends AppState
 End class
 
 Class AppStateGame Extends AppState
-	Field p1:= New Piece(40,40,100)
-	Field p2:= New Piece(255,0,100)
+	Field p1:= New Piece(40,40,100,1)
+	Field p2:= New Piece(255,0,100,2)
 	Field maskpiece:= New MaskPiece(0,0,0)
 	Field currentplayer:Piece  
 	Field Shortestside:Int
@@ -257,7 +262,7 @@ Class AppStateGame Extends AppState
 		myboard = New Grid(gamesize,gamesize,tilesize,offx,offy)
 		currentplayer = p1
 
-		solutions = CreateSolutions(matches,tilesize,currentplayer)
+		solutions = CreateSolutions(matches,tilesize,currentplayer.playertype)
 '		myboard.AddPiece(1,1,p1)
 '		myboard.AddPiece(2,1,p1) 
 		
@@ -265,7 +270,8 @@ Class AppStateGame Extends AppState
 '			myboard.AddPiece(offx,offy,maskpiece)
 '			myboard.AddPiece(offx,offy,maskpiece)
 '		endif
-		
+		Print p1.playertype
+		Print p2.playertype
 	End Method
 	
 	Method Update:Int()
@@ -274,7 +280,7 @@ Class AppStateGame Extends AppState
 
  	'			myboard.AddPiece(TouchX(0),TouchY(0),currentplayer)
 			If gameover = false
- 				If myboard.AddPiece(TouchX(0),TouchY(0),currentplayer)= true 
+ 				If myboard.AddPiece(TouchX(0),TouchY(0),myboard.CloneMe(currentplayer._r,currentplayer._g,currentplayer._b,currentplayer.playertype))= True 
 			
 					completematch = CompleteMatchFound(currentplayer)
 					
@@ -356,8 +362,10 @@ Class AppStateGame Extends AppState
 	
 		myboard.Render
 		If completematch 
+'			completematch.p = currentplayer
 			completematch.Render
 			gameover = True
+
 		Endif
 		'For Local n:= Eachin solutions
 			
@@ -370,6 +378,7 @@ Class AppStateGame Extends AppState
 	End Method
 	
 		Method CompleteMatchFound:Grid(p:Piece)
+		
 		For Local s:= Eachin solutions
 		
 			For Local by:Int = 0 To myboard._sy - s._sy
@@ -380,9 +389,10 @@ Class AppStateGame Extends AppState
 					For Local sy:Int = 0 Until s._sy
 						For Local sx:Int = 0 Until s._sx
 							If s.pieces [s.I(sx,sy)]
-								If myboard.pieces[myboard.I(bx+sx,by+sy)] <> p
-						
-									match = False
+								If myboard.pieces[myboard.I(bx+sx,by+sy)] 
+									If myboard.pieces[myboard.I(bx+sx,by+sy)].playertype <> p.playertype						
+										match = False
+									endif
 								Endif
 							Endif
 						Next
@@ -434,25 +444,37 @@ Class Piece
 	Field _r:Int  
 	Field _g:Int 
 	Field _b:Int 
+	Field mood:Int
+	Field playertype:int
 
 	Method New()
 		
-		piecetype = 0
+'		piecetype = 0
 		_r = 40'Rnd(0,255)
 		_g = 40'Rnd(0,255)		
 		_b = 40'Rnd(0,255)
 	
 	End Method
 	
-	Method New (r:Int,g:Int,b:Int)
+	Method New (r:Int,g:Int,b:Int,playertype:int)
 		_r=r
 		_g=g
 		_b=b
+		Self.playertype = playertype
 	End Method
 
 	Method Draw:Void(x:Float,y:Float,tilesize:int)
 		SetColor(_r,_g,_b)
-		DrawCircle(x+tilesize/2,y+tilesize/2,tilesize/2)		
+		DrawCircle(x+tilesize/2,y+tilesize/2,tilesize/2)	
+		If mood = 0
+			DrawEllipse(x+tilesize*0.5,y+tilesize*0.70,tilesize*0.4,tilesize*0.15)
+			SetColor(_r,_g,_b)
+			DrawEllipse(x+tilesize*0.5,y+tilesize*0.6,tilesize*0.4,tilesize*0.15)
+
+			SetColor(_r,_g,_b)
+			DrawCircle(x+tilesize*0.25,y+tilesize*0.35,tilesize/5)	
+			DrawCircle(x+tilesize*0.75,y+tilesize*0.35,tilesize/5)	
+		endif
 	End Method
 	
 	Method Update:Void()
@@ -462,16 +484,20 @@ Class Piece
 	End Method
 
 
+
+
 End Class
 
 Class PieceSmiley Extends Piece
 	Field currentplayer:Piece
-	Method New (r:Int,g:Int,b:Int,currentplayer:Piece)
+	Method New (r:Int,g:Int,b:Int,playertype:int)
+		Self._r = r
+		Self._g = g
+		Self._b = b
 
-		
-		Super.New(r,g,b)
-
-		Self.currentplayer = currentplayer		
+'		Super.New(r,g,b)
+		Self.playertype = playertype
+'		Self.currentplayer = currentplayer		
 	End Method
 
 
@@ -490,13 +516,13 @@ Class PieceSmiley Extends Piece
 '		DrawLine(x+tilesize*0.40,y+2+tilesize*0.85,x+tilesize*0.60,y+2+tilesize*0.85)
 '		DrawLine(x+tilesize*0.60,y+2+tilesize*0.85,x+tilesize*0.80,y+2+tilesize*0.65)
 '		
-		DrawEllipse(x+tilesize*0.5,y+tilesize*0.70,tilesize*0.4,tilesize*0.15)
-		SetColor(currentplayer._r,currentplayer._g,currentplayer._b)
-		DrawEllipse(x+tilesize*0.5,y+tilesize*0.6,tilesize*0.4,tilesize*0.15)
+'		DrawEllipse(x+tilesize*0.5,y+tilesize*0.70,tilesize*0.4,tilesize*0.15)
+'		SetColor(currentplayer._r,currentplayer._g,currentplayer._b)
+'		DrawEllipse(x+tilesize*0.5,y+tilesize*0.6,tilesize*0.4,tilesize*0.15)
 
-		SetColor(_r,_g,_b)
-		DrawCircle(x+tilesize*0.25,y+tilesize*0.35,tilesize/5)	
-		DrawCircle(x+tilesize*0.75,y+tilesize*0.35,tilesize/5)	
+'		SetColor(_r,_g,_b)
+'		DrawCircle(x+tilesize*0.25,y+tilesize*0.35,tilesize/5)	
+'		DrawCircle(x+tilesize*0.75,y+tilesize*0.35,tilesize/5)	
 
 
 	End Method
@@ -644,6 +670,11 @@ Class Grid
 	
 	End Method
 	
+	Method CloneMe:Piece(r:Int,g:Int,b:Int,playertype:Int)
+		Local clonepiece:Piece = New Piece(r,g,b,playertype)
+		Return clonepiece
+	End method
+	
 End Class
 
 Class Vec2i
@@ -659,8 +690,11 @@ Class Vec2i
 
 End Class
 
-Function CreateSolutions:List<Grid>(size:Int,tilesize:Int,currentplayer:Piece)
-	Local checkpiece:= New PieceSmiley(255,255,255,currentplayer)
+Function CreateSolutions:List<Grid>(size:Int,tilesize:Int,playertype:int)
+	Local checkpiece:= New PieceSmiley(255,255,255,playertype)
+'	Local checkpiece:= currentplayer
+'	checkpiece.mood = 1
+	
 
 	Local glist:= New List<Grid>
 	Local ga:= New Grid(size,1,tilesize,0,0)
