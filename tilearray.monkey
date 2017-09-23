@@ -210,7 +210,7 @@ Class AppStateGame Extends AppState
 	
 	field gameover:Bool = false
 
-	Field completematch:Grid
+	Field foundsolution:Grid
  
 	Field tilesize:Float
 
@@ -277,7 +277,7 @@ Class AppStateGame Extends AppState
 			If gameover = false
  				If myboard.AddPiece(TouchX(0),TouchY(0),currentplayer.Clone())= True 
 			
-					completematch = CompleteMatchFound(currentplayer)
+					foundsolution = CompleteMatchFound(currentplayer)
 					
 					If currentplayer = p1
 						currentplayer = p2
@@ -352,8 +352,9 @@ Class AppStateGame Extends AppState
 
 	
 		myboard.Render
-		If completematch 
-			completematch.Render
+		If foundsolution 
+'			foundsolution.Render
+			myboard.SetMood(foundsolution.GetPositions(),1)
 			gameover = True
 		Endif
 		'For Local n:= Eachin solutions
@@ -434,7 +435,8 @@ Class Piece
  	Field piecetype:Int 
 	Field _r:Int  
 	Field _g:Int 
-	Field _b:Int 
+	Field _b:Int
+	Field mood:int 
 
 	Method New()
 		
@@ -650,6 +652,31 @@ Class Grid
 	
 	End Method
 	
+	Method GetPositions:List<Vec2i>()
+		Local positions:= New List<Vec2i>
+		
+		For Local x:Int = 0 Until _sx
+			For Local y:Int = 0 Until _sy
+				If pieces[I(x,y)] 
+					positions.AddLast(New Vec2i(x+_offsetx,y+_offsety))
+				Endif
+			Next
+		Next
+		Return positions
+	End Method
+	
+	
+	Method SetMood:Void (positions:List<Vec2i>,mood:int)
+		For Local pos:= Eachin positions
+
+			Print "posx" + pos.x
+			Print "posy" + pos.y
+			Local p:= pieces[I(pos.x,pos.y)]
+			If p then p.mood = mood
+		Next
+	
+	
+	End Method
 End Class
 
 Class Vec2i
