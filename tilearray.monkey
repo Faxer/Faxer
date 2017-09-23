@@ -327,10 +327,6 @@ Class AppStateGame Extends AppState
 
 		Endif
 		
-		If KeyHit (KEY_BACKSPACE)
-			Return RETVAL.retry
-		endif
-		
 		
 '		For Local x:Int = 0Until gamesize 
 '			Local istie:Bool = True
