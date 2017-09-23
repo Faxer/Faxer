@@ -17,7 +17,13 @@ Class RETVAL
 	Const winner_p1:Int = 6
 	Const winner_p2:Int = 7
 	Const retry:Int = 8
-	Const moodhappy:int = 1
+End Class
+
+Class MOOD
+	Const none:Int = 0
+	Const happy:Int = 1
+	Const sad:Int = 2
+	Const indifferent:Int = 3
 End Class
 
 
@@ -274,10 +280,20 @@ Class AppStateGame Extends AppState
  		If TouchHit(0)
 
  	'			myboard.AddPiece(TouchX(0),TouchY(0),currentplayer)
-			If gameover = false
+	
+				If gameover = True
+				Return RETVAL.retry
+			endif
+	
+			If gameover = False
  				If myboard.AddPiece(TouchX(0),TouchY(0),currentplayer.Clone())= True 
 			
 					foundsolution = CompleteMatchFound(currentplayer)
+					If foundsolution 
+
+						myboard.SetMood(foundsolution.GetPositions(),MOOD.happy)
+						gameover = True
+					Endif
 					
 					If currentplayer = p1
 						currentplayer = p2
@@ -288,9 +304,7 @@ Class AppStateGame Extends AppState
 				Endif 			
 			Endif		
 			
-			If gameover = True
-				Return RETVAL.retry
-			endif
+
 				
  					
  		'		completematch = CompleteMatchFound(currentplayer) 
@@ -352,11 +366,7 @@ Class AppStateGame Extends AppState
 
 	
 		myboard.Render
-		If foundsolution 
-'			foundsolution.Render
-			myboard.SetMood(foundsolution.GetPositions(),1)
-			gameover = True
-		Endif
+
 		'For Local n:= Eachin solutions
 			
 			'n.Render
@@ -389,8 +399,8 @@ Class AppStateGame Extends AppState
 						Next
 					
 					Next
-				s._offsetx=bx*myboard._tilesize+myboard._offsetx
-				s._offsety=by*myboard._tilesize+myboard._offsety
+				s._offsetx=bx
+				s._offsety=by
 				s.showgrid = false
 				If match = True Return s
 
@@ -456,7 +466,17 @@ Class Piece
 
 	Method Draw:Void(x:Float,y:Float,tilesize:int)
 		SetColor(_r,_g,_b)
-		DrawCircle(x+tilesize/2,y+tilesize/2,tilesize/2)		
+		DrawCircle(x+tilesize/2,y+tilesize/2,tilesize/2)	
+		If mood = MOOD.happy	
+			SetColor(255,255,255)
+			DrawEllipse(x+tilesize*0.5,y+tilesize*0.70,tilesize*0.4,tilesize*0.15)
+			SetColor(_r,_g,_b)
+			DrawEllipse(x+tilesize*0.5,y+tilesize*0.6,tilesize*0.4,tilesize*0.15)
+
+			SetColor(255,255,255)
+			DrawCircle(x+tilesize*0.25,y+tilesize*0.35,tilesize/5)	
+			DrawCircle(x+tilesize*0.75,y+tilesize*0.35,tilesize/5)	
+		endif
 	End Method
 	
 	Method Update:Void()
@@ -669,10 +689,15 @@ Class Grid
 	Method SetMood:Void (positions:List<Vec2i>,mood:int)
 		For Local pos:= Eachin positions
 
-			Print "posx" + pos.x
-			Print "posy" + pos.y
+
+
 			Local p:= pieces[I(pos.x,pos.y)]
-			If p then p.mood = mood
+			If p
+			
+				Print "posx" + pos.x			
+				Print "posy" + pos.y
+				p.mood = mood
+			Endif
 		Next
 	
 	
