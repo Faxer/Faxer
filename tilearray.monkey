@@ -409,12 +409,16 @@ Class AppStateGame Extends AppState
 					Next
 	'			s._offsetx=bx
 	'			s._offsety=by
-				s.gridspacex=bx
-				s.gridspacex=by				
+		
 			
 				s.showgrid = false
-				If match = True Return s
-
+				If match = True 
+					s.gridspacex=bx
+					s.gridspacey=by		
+				'	Print "bx "+bx
+				'	Print "by "+by
+					Return s
+				endif
 			Next
 
 		Next
@@ -697,7 +701,7 @@ Class Grid
 		For Local x:Int = 0 Until _sx
 			For Local y:Int = 0 Until _sy
 				If pieces[I(x,y)] 
-					positions.AddLast(New Vec2i(x+gridspacex,y+gridspacex))
+					positions.AddLast(New Vec2i(x+gridspacex,y+gridspacey))
 				Endif
 			Next
 		Next
