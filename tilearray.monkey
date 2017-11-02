@@ -211,7 +211,7 @@ Class AppStateGame Extends AppState
 	Field maskpiece:= New MaskPiece(0,0,0)
 	Field currentplayer:Piece  
 	Field Shortestside:Int
-
+	Field exitprompt:Prompt
 
 	Field offx:float
 	Field offy:Int = 0
@@ -238,7 +238,7 @@ Class AppStateGame Extends AppState
 		soffx = DeviceWidth()/2-(3/2*tilesize)
 
 		
-		
+		exitprompt = New Prompt()
 
 
 		
@@ -283,8 +283,16 @@ Class AppStateGame Extends AppState
  		If TouchHit(0)
 
  	'			myboard.AddPiece(TouchX(0),TouchY(0),currentplayer)
-	
-				If gameover = True
+ 			If exitprompt
+ 				If exitprompt.IsButtonClick(TouchX(0),TouchY(0))=1
+					Print "GREEN"
+				Endif
+				
+				If exitprompt.IsButtonClick(TouchX(0),TouchY(0))=2
+					Print "RED"
+				Endif
+			endif
+			If gameover = True
 				Return RETVAL.retry
 			endif
 	
@@ -381,7 +389,9 @@ Class AppStateGame Extends AppState
 		
 		'Next
  
-
+		If exitprompt
+			exitprompt.Render
+		endif
 		Return 0
 	End Method
 	
@@ -592,9 +602,9 @@ Class Grid
 	End Method
 	
 	
-	Method New()
+'	Method New()
 	'	Error "Grid New() : Call the constructor with paremeters!"
-	End Method
+'	End Method
 	
 	
 	
@@ -726,6 +736,43 @@ Class Grid
 	
 	End Method
 End Class
+
+Class Prompt Extends Grid
+
+	Field button_1:Piece
+	Field button_2:Piece
+
+	Method New()
+
+		_sx = 3
+		_sy = 1
+		_tilesize = DeviceWidth()/8
+		_offsetx = DeviceWidth()/2-1.5*_tilesize
+		_offsety = DeviceHeight()/2-0.5*_tilesize
+		button_1 = New Piece(0,0,200,0)
+		button_2 = New Piece(0,200,0,0)
+'		button_1.piecetype = 1
+'		button_1.piecetype = 1
+		pieces = New Piece[3]
+		AddPiece(_offsetx+1,_offsety+1,button_1)
+		AddPiece(_offsetx+3*_tilesize-1,_offsety+1,button_2)
+
+	
+	
+	End method
+
+	Method IsButtonClick:Int(x:Int,y:Int)
+		If x > _offsetx And x < _offsetx+_tilesize And y > _offsety And y < _offsety+_tilesize Return 1
+
+		If x > _offsetx+2*_tilesize And x < _offsetx+3*_tilesize And y > _offsety And y < _offsety+_tilesize Return 2
+		
+		Return 0
+	
+	
+	End Method
+
+End Class
+
 
 Class Vec2i
 	Field x:Int
