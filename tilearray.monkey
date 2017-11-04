@@ -209,9 +209,13 @@ Class AppStateGame Extends AppState
 	Field p1:= New Piece(1,40,40,100)
 	Field p2:= New Piece(2,255,0,100)
 	Field maskpiece:= New MaskPiece(0,0,0)
+	
+	Field button_1:Piece
+	Field button_2:Piece
+
 	Field currentplayer:Piece  
 	Field Shortestside:Int
-	Field exitprompt:Prompt
+	Field exitprompt:Grid
 
 	Field offx:float
 	Field offy:Int = 0
@@ -236,9 +240,24 @@ Class AppStateGame Extends AppState
 		Local soffx:Int
 		Local soffy:Int = DeviceHeight()/2-tilesize
 		soffx = DeviceWidth()/2-(3/2*tilesize)
-
 		
-		exitprompt = New Prompt()
+		button_1 = New Piece(0,0,200,0)
+		button_2 = New Piece(0,200,0,0)
+		button_1.piecetype = 2
+		button_2.piecetype = 2
+		
+		exitprompt = New Grid(3,1,DeviceWidth()/8,DeviceHeight()/2-0.5*(DeviceWidth()/8),DeviceHeight()/2-0.5*(DeviceWidth()/8))
+
+	'	exitprompt.AddPiece(exitprompt._offsetx+1,exitprompt._offsety+1,maskpiece)
+
+		exitprompt.AddPiece(exitprompt._offsetx+2*exitprompt._tilesize-1,exitprompt._offsety+1,maskpiece)
+
+	'	exitprompt.AddPiece(exitprompt._offsetx+3*exitprompt._tilesize-1,exitprompt._offsety+1,maskpiece)
+		
+
+		exitprompt.AddPiece(exitprompt._offsetx+1,exitprompt._offsety+1,button_1)
+		exitprompt.AddPiece(exitprompt._offsetx+3*exitprompt._tilesize-1,exitprompt._offsety+1,button_2)
+		
 
 
 		
@@ -284,11 +303,11 @@ Class AppStateGame Extends AppState
 
  	'			myboard.AddPiece(TouchX(0),TouchY(0),currentplayer)
  			If exitprompt
- 				If exitprompt.IsButtonClick(TouchX(0),TouchY(0))=1
+ 				If exitprompt.TileDown(TouchX(0),TouchY(0))=0
 					Print "GREEN"
 				Endif
 				
-				If exitprompt.IsButtonClick(TouchX(0),TouchY(0))=2
+				If exitprompt.TileDown(TouchX(0),TouchY(0))=2
 					Print "RED"
 				Endif
 			endif
@@ -623,7 +642,7 @@ Class Grid
 				If showgrid 
 					SetColor(255,255,255)
 					
-					If Not pieces[I(x,y)] Or pieces[I(x,y)].piecetype <> 1
+					If Not pieces[I(x,y)] Or pieces[I(x,y)].piecetype <1 Or pieces[I(x,y)].piecetype > 2
 						DrawRect(x*_tilesize+1+_offsetx,y*_tilesize+1+_offsety,_tilesize-2,_tilesize-2)
 					endif
 				Endif
@@ -702,6 +721,17 @@ Class Grid
 		Return true
 		
 	
+	
+	End Method
+	
+	Method TileDown:Int(x:Int,y:Int)
+	
+		If Screen2Me(x,y) = Null Return -1
+		Local tileindex:Int = I(Screen2Me(x,y).x,Screen2Me(x,y).y)
+		
+		
+	
+		Return tileindex
 	
 	End Method
 	
