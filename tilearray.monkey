@@ -19,11 +19,13 @@ Class RETVAL
 	Const retry:Int = 8
 End Class
 
-Class MOOD
+Class SHAPE
 	Const none:Int = 0
 	Const happy:Int = 1
 	Const sad:Int = 2
 	Const indifferent:Int = 3
+	Const cross:Int = 4
+	Const arrow:Int = 5
 End Class
 
 
@@ -217,6 +219,7 @@ Class AppStateGame Extends AppState
 	Field Shortestside:Int
 	Field exitprompt:Grid
 
+
 	Field offx:float
 	Field offy:Int = 0
 	Field solutions:List<Grid> 
@@ -244,19 +247,21 @@ Class AppStateGame Extends AppState
 		button_1 = New Piece(0,0,200,0)
 		button_2 = New Piece(0,200,0,0)
 		button_1.piecetype = 2
+		button_1.shape = SHAPE.arrow
 		button_2.piecetype = 2
+		button_2.shape = SHAPE.cross
 		
-		exitprompt = New Grid(3,1,DeviceWidth()/8,DeviceHeight()/2-0.5*(DeviceWidth()/8),DeviceHeight()/2-0.5*(DeviceWidth()/8))
+'		exitprompt = New Grid(3,1,DeviceWidth()/8,DeviceHeight()/2-0.5*(DeviceWidth()/8),DeviceHeight()/2-0.5*(DeviceWidth()/8))
 
 	'	exitprompt.AddPiece(exitprompt._offsetx+1,exitprompt._offsety+1,maskpiece)
 
-		exitprompt.AddPiece(exitprompt._offsetx+2*exitprompt._tilesize-1,exitprompt._offsety+1,maskpiece)
+'		exitprompt.AddPiece(exitprompt._offsetx+2*exitprompt._tilesize-1,exitprompt._offsety+1,maskpiece)
 
 	'	exitprompt.AddPiece(exitprompt._offsetx+3*exitprompt._tilesize-1,exitprompt._offsety+1,maskpiece)
 		
 
-		exitprompt.AddPiece(exitprompt._offsetx+1,exitprompt._offsety+1,button_1)
-		exitprompt.AddPiece(exitprompt._offsetx+3*exitprompt._tilesize-1,exitprompt._offsety+1,button_2)
+'		exitprompt.AddPiece(exitprompt._offsetx+1,exitprompt._offsety+1,button_1)
+'		exitprompt.AddPiece(exitprompt._offsetx+3*exitprompt._tilesize-1,exitprompt._offsety+1,button_2)
 		
 
 
@@ -302,15 +307,7 @@ Class AppStateGame Extends AppState
  		If TouchHit(0)
 
  	'			myboard.AddPiece(TouchX(0),TouchY(0),currentplayer)
- 			If exitprompt
- 				If exitprompt.TileDown(TouchX(0),TouchY(0))=0
-					Print "GREEN"
-				Endif
-				
-				If exitprompt.TileDown(TouchX(0),TouchY(0))=2
-					Print "RED"
-				Endif
-			endif
+
 			If gameover = True
 				Return RETVAL.retry
 			endif
@@ -321,7 +318,7 @@ Class AppStateGame Extends AppState
 					foundsolution = CompleteMatchFound(currentplayer)
 					If foundsolution 
 
-						myboard.SetMood(foundsolution.GetPositions(),MOOD.happy)
+						myboard.SetMood(foundsolution.GetPositions(),SHAPE.happy)
 						gameover = True
 					Endif
 					
@@ -331,7 +328,21 @@ Class AppStateGame Extends AppState
 						currentplayer = p1
 					Endif
 				
-				Endif 			
+				Endif 	
+				
+				If exitprompt
+ 					If exitprompt.TileDown(TouchX(0),TouchY(0))=0
+						Print "GREEN"
+						gameover = True
+					Endif
+				
+					If exitprompt.TileDown(TouchX(0),TouchY(0))=2
+						Print "RED"
+						exitprompt = Null
+						myboard.standby = False
+					Endif
+			Endif		
+					
 			Endif		
 			
 
@@ -367,7 +378,14 @@ Class AppStateGame Extends AppState
 		Endif
 		
 		If KeyHit(KEY_BACKSPACE)
-			Return RETVAL.retry
+			myboard.standby = true 
+			exitprompt = New Grid(3,1,DeviceWidth()/8,DeviceHeight()/2-0.5*(DeviceWidth()/8),DeviceHeight()/2-0.5*(DeviceWidth()/8))
+
+			exitprompt.AddPiece(exitprompt._offsetx+2*exitprompt._tilesize-1,exitprompt._offsety+1,maskpiece)	
+			
+			exitprompt.AddPiece(exitprompt._offsetx+1,exitprompt._offsety+1,button_1)
+			exitprompt.AddPiece(exitprompt._offsetx+3*exitprompt._tilesize-1,exitprompt._offsety+1,button_2)
+		'	Return RETVAL.retry
 		endif
 		
 		
@@ -383,9 +401,12 @@ Class AppStateGame Extends AppState
 	'		
 	'		tie = istie
 	'	next
+	
+ 		
+		
 		
  			If tie = True
- 				myboard.SetMood(myboard.GetPositions(),MOOD.indifferent)
+ 				myboard.SetMood(myboard.GetPositions(),SHAPE.indifferent)
  				gameover = true
 				'	Return RETVAL.retry
 				
@@ -490,7 +511,7 @@ Class Piece
 	Field _r:Int  
 	Field _g:Int 
 	Field _b:Int
-	Field mood:int 
+	Field shape:int 
 
 	Method New()
 		
@@ -508,25 +529,27 @@ Class Piece
 		_b=b
 	End Method
 
-	Method Draw:Void(x:Float,y:Float,tilesize:int)
-		SetColor(_r,_g,_b)
-		DrawCircle(x+tilesize/2,y+tilesize/2,tilesize/2)	
-		If mood = MOOD.happy	
-			SetColor(255,255,255)
-			DrawEllipse(x+tilesize*0.5,y+tilesize*0.70,tilesize*0.4,tilesize*0.15)
-			SetColor(_r,_g,_b)
-			DrawEllipse(x+tilesize*0.5,y+tilesize*0.6,tilesize*0.4,tilesize*0.15)
+	Method Draw:Void(x:Float,y:Float,tilesize:Int)
+		Shapes(x,y,tilesize,_r,_g,_b,shape)
 
-			SetColor(255,255,255)
-			DrawCircle(x+tilesize*0.25,y+tilesize*0.35,tilesize/5)	
-			DrawCircle(x+tilesize*0.75,y+tilesize*0.35,tilesize/5)	
-		Elseif mood = MOOD.indifferent
-			SetColor(255,255,255)
-			DrawRect(x+tilesize/4,y+0.7*tilesize,tilesize/2,tilesize/8)
-			DrawCircle(x+tilesize*0.25,y+tilesize*0.35,tilesize/5)	
-			DrawCircle(x+tilesize*0.75,y+tilesize*0.35,tilesize/5)	
-		Endif
-		
+'		SetColor(_r,_g,_b)
+'		DrawCircle(x+tilesize/2,y+tilesize/2,tilesize/2)	
+'		If shape = SHAPE.happy	
+'			SetColor(255,255,255)
+'			DrawEllipse(x+tilesize*0.5,y+tilesize*0.70,tilesize*0.4,tilesize*0.15)
+'			SetColor(_r,_g,_b)
+'			DrawEllipse(x+tilesize*0.5,y+tilesize*0.6,tilesize*0.4,tilesize*0.15)
+'
+'			SetColor(255,255,255)
+'			DrawCircle(x+tilesize*0.25,y+tilesize*0.35,tilesize/5)	
+'			DrawCircle(x+tilesize*0.75,y+tilesize*0.35,tilesize/5)	
+'		Elseif shape = SHAPE.indifferent
+'			SetColor(255,255,255)
+'			DrawRect(x+tilesize/4,y+0.7*tilesize,tilesize/2,tilesize/8)
+'			DrawCircle(x+tilesize*0.25,y+tilesize*0.35,tilesize/5)	
+'			DrawCircle(x+tilesize*0.75,y+tilesize*0.35,tilesize/5)	
+'		Endif
+ 		
 	End Method
 	
 	Method Update:Void()
@@ -607,7 +630,8 @@ Class Grid
 	Field _offsety:Int
 	Field showgrid:Bool = True
 	Field gridspacex:Int
-	Field gridspacey:int
+	Field gridspacey:Int
+	Field standby:Int = false
 		
 	Method New (sx:Int,sy:Int,tilesize:Int,offsetx:Int,offsety:Int)
 		_sx = sx
@@ -676,6 +700,7 @@ Class Grid
 			'If gpos = Null Return False 
 		'	Print gpos.x + "," + gpos.y
 		If Screen2Me(x,y) = Null Return False
+		If standby = True Return false
 
  			Return AddPieceCore(gpos.x,gpos.y,p)
 
@@ -749,7 +774,7 @@ Class Grid
 	End Method
 	
 	
-	Method SetMood:Void (positions:List<Vec2i>,mood:int)
+	Method SetMood:Void (positions:List<Vec2i>,shape:int)
 		For Local pos:= Eachin positions
 
 
@@ -759,7 +784,7 @@ Class Grid
 			
 				Print "posx" + pos.x			
 				Print "posy" + pos.y
-				p.mood = mood
+				p.shape = shape
 			Endif
 		Next
 	
@@ -857,6 +882,56 @@ Function CreateSolutions:List<Grid>(size:Int,tilesize:Int,currentplayer:Piece)
 	Return glist
 End Function
 
+Function Shapes:Int(x:Float,y:Float,tilesize:Int,_r:Int,_g:Int,_b:Int,shape:Int)
+	Local rot:Float = 45
+
+	If shape >= SHAPE.none And shape <= SHAPE.indifferent
+		SetColor(_r,_g,_b)
+		DrawCircle(x+tilesize/2,y+tilesize/2,tilesize/2)	
+	endif
+		If shape = SHAPE.happy	
+			SetColor(255,255,255)
+			DrawEllipse(x+tilesize*0.5,y+tilesize*0.70,tilesize*0.4,tilesize*0.15)
+			SetColor(_r,_g,_b)
+			DrawEllipse(x+tilesize*0.5,y+tilesize*0.6,tilesize*0.4,tilesize*0.15)
+
+			SetColor(255,255,255)
+			DrawCircle(x+tilesize*0.25,y+tilesize*0.35,tilesize/5)	
+			DrawCircle(x+tilesize*0.75,y+tilesize*0.35,tilesize/5)	
+		Elseif shape = SHAPE.indifferent
+			SetColor(255,255,255)
+			DrawRect(x+tilesize/4,y+0.7*tilesize,tilesize/2,tilesize/8)
+			DrawCircle(x+tilesize*0.25,y+tilesize*0.35,tilesize/5)	
+			DrawCircle(x+tilesize*0.75,y+tilesize*0.35,tilesize/5)	
+		Elseif shape = SHAPE.cross
+			SetColor(_r,_g,_b)
+			PushMatrix()
+			'	Translate(-x,-y)
+		'		Rotate(10)
+				Translate(x+tilesize*0.5,y+tilesize*0.5)	
+				Rotate(45)			
+					DrawRect(-tilesize*0.5,-tilesize*0.5+tilesize/2-tilesize/6,tilesize,tilesize/3)
+					DrawRect(-tilesize*0.5+tilesize/2-tilesize/6,-tilesize*0.5,tilesize/3,tilesize)
+				
+			PopMatrix()
+		Elseif shape = SHAPE.arrow
+			SetColor(_r,_g,_b)
+			DrawRect(x+0.2*tilesize,y+0.5*tilesize-tilesize/6,tilesize,tilesize/3)
+			PushMatrix()
+				Translate(x,y+tilesize*0.5)
+				Rotate(45)
+					DrawRect(0,0,0.7*tilesize,tilesize/3)	
+				Rotate(270)
+					DrawRect(0,0-tilesize/3,0.7*tilesize,tilesize/3)
+			PopMatrix()
+			
+		
+		Endif
+		
+
+		Return 0
+
+End Function 
 
 
 #rem
