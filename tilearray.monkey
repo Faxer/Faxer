@@ -333,7 +333,8 @@ Class AppStateGame Extends AppState
 				If exitprompt
  					If exitprompt.TileDown(TouchX(0),TouchY(0))=0
 						Print "GREEN"
-						gameover = True
+					'	gameover = True
+						Return RETVAL.retry
 					Endif
 				
 					If exitprompt.TileDown(TouchX(0),TouchY(0))=2
