@@ -1,6 +1,7 @@
 Strict
 Import Mojo
 #ANDROID_SCREEN_ORIENTATION = "landscape"
+#ANDROID_APP_LABEL = "Match Anything"
 
 Function Main:Int()
 
@@ -34,7 +35,8 @@ Field presentstate:AppState
 Field gamesize:Int = 10
 Field tilesize:Int
 Field match:Int
-Field size:int
+Field size:Int
+Field action:Int 
 
 	
 	Method OnCreate:Int()
@@ -58,6 +60,7 @@ Field size:int
 	End Method
 	
 	Method OnUpdate:Int()
+		
 	
 		Select presentstate.Update()
 			Case RETVAL.startgame
@@ -79,6 +82,8 @@ Field size:int
 			Case RETVAL.retry 
 				presentstate = New AppStateStart(DeviceWidth()/16,DeviceHeight()/2)			
 		End Select
+		
+		presentstate.action = action
 
 		Return 0
 	End Method
@@ -86,15 +91,32 @@ Field size:int
 	Method OnRender:Int()
 		Cls(0,0,0)
 		presentstate.Render
-
+'		If action = 1
+'			Cls(255,0,0)
+'		endif
 		Return 0
 	End Method
 	
+	
+	Method OnBack:Int()
+'		If presentstate.ID = 1
+'			presentstate = New AppStateStart(DeviceWidth()/16,DeviceHeight()/2)
+	'	if presentstate.ID = 2
+'			presentstate.action = 1
+			action = 1
+	'	Endif
+						
+		Return 0
+	End Method
 
 End Class
 
 Class AppState 
-	Field gamesize:float
+
+	Field ID:Int 
+
+	Field action:Int 
+	Field gamesize:Float
 
 '	Method Create:int() abstract
 	
@@ -108,11 +130,13 @@ End Class
  
  
 Class AppStateStart Extends AppState
+	Const ID:Int = 0
+	
 	Field threeplayer:Grid
 	Field fourplayer:Grid
 	Field fiveplayer:Grid
 	Field tilesize:Int
-
+	
 
 
 
@@ -158,6 +182,7 @@ Class AppStateSize Extends AppState
 	Field grid3:Grid
 	Field tilesize:Int
 	Field matches:Int
+	Const ID:Int = 1
 
 
 	Method New(tilesize:int,matches:int)
@@ -208,6 +233,8 @@ Class AppStateSize Extends AppState
 End class
 
 Class AppStateGame Extends AppState
+	Field ID:Int = 2
+
 	Field p1:= New Piece(1,40,40,100)
 	Field p2:= New Piece(2,255,0,100)
 	Field maskpiece:= New MaskPiece(0,0,0)
@@ -220,11 +247,11 @@ Class AppStateGame Extends AppState
 	Field exitprompt:Grid
 
 
-	Field offx:float
+	Field offx:Float
 	Field offy:Int = 0
 	Field solutions:List<Grid> 
 	
-	field gameover:Bool = false
+	Field gameover:Bool = False
 
 	Field foundsolution:Grid
  
@@ -235,7 +262,7 @@ Class AppStateGame Extends AppState
 	
 	Field tie:Bool 
 
-	Method New(gamesize:float,matches:Int)
+	Method New(gamesize:Float,matches:Int)
 	'	Self.tilesize = tilesize
 		Self.gamesize = gamesize
 		Self.tilesize = DeviceHeight()/gamesize
@@ -263,7 +290,7 @@ Class AppStateGame Extends AppState
 '		exitprompt.AddPiece(exitprompt._offsetx+1,exitprompt._offsety+1,button_1)
 '		exitprompt.AddPiece(exitprompt._offsetx+3*exitprompt._tilesize-1,exitprompt._offsety+1,button_2)
 		
-
+		action = 1
 
 		
 '		If gamesize = 3
@@ -310,7 +337,7 @@ Class AppStateGame Extends AppState
 
 			If gameover = True
 				Return RETVAL.retry
-			endif
+			Endif
 	
 			If gameover = False
  				If myboard.AddPiece(TouchX(0),TouchY(0),currentplayer.Clone())= True 
@@ -378,14 +405,16 @@ Class AppStateGame Extends AppState
 
 		Endif
 		
-		If KeyHit(KEY_BACKSPACE)
-			myboard.standby = true 
+		If action = 1
+			myboard.standby = True 
+	'		myboard = Null
 			exitprompt = New Grid(3,1,DeviceWidth()/8,DeviceHeight()/2-0.5*(DeviceWidth()/8),DeviceHeight()/2-0.5*(DeviceWidth()/8))
 
 			exitprompt.AddPiece(exitprompt._offsetx+2*exitprompt._tilesize-1,exitprompt._offsety+1,maskpiece)	
 			
 			exitprompt.AddPiece(exitprompt._offsetx+1,exitprompt._offsety+1,button_1)
 			exitprompt.AddPiece(exitprompt._offsetx+3*exitprompt._tilesize-1,exitprompt._offsety+1,button_2)
+			action = 0
 		'	Return RETVAL.retry
 		endif
 		
