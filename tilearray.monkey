@@ -66,15 +66,19 @@ Field action:Int
 			Case RETVAL.startgame
 				size = presentstate.gamesize
 				presentstate = New AppStateGame(size,match)
+				presentstate.action = 0
 			Case RETVAL.startgame3
 				match = 3
 				presentstate = New AppStateSize(tilesize,3)
+				presentstate.action = 0
 			Case RETVAL.startgame4
 				match = 4
 				presentstate = New AppStateSize(tilesize,4)
+				presentstate.action = 0
 			Case RETVAL.startgame5
 				match = 5
 				presentstate = New AppStateSize(tilesize,5)
+				presentstate.action = 0
 			Case RETVAL.winner_p1 
 				Print "Player 1 Wins"
 			Case RETVAL.winner_p2
@@ -83,7 +87,7 @@ Field action:Int
 				presentstate = New AppStateStart(DeviceWidth()/16,DeviceHeight()/2)			
 		End Select
 		
-		presentstate.action = action
+		
 
 		Return 0
 	End Method
@@ -103,7 +107,7 @@ Field action:Int
 '			presentstate = New AppStateStart(DeviceWidth()/16,DeviceHeight()/2)
 	'	if presentstate.ID = 2
 '			presentstate.action = 1
-			action = 1
+			presentstate.action = 1
 	'	Endif
 						
 		Return 0
@@ -210,7 +214,7 @@ Class AppStateSize Extends AppState
   				Return RETVAL.startgame
   			Endif
   		Endif
-  		If KeyHit(KEY_BACKSPACE)
+  		If KeyHit(KEY_BACKSPACE)Or action = 1
   			Return RETVAL.retry
   		endif
   		Return 0
@@ -331,6 +335,13 @@ Class AppStateGame Extends AppState
 	
 	Method Update:Int()
 		
+		If KeyHit(KEY_BACKSPACE)
+			action = 1
+		
+		Endif
+		
+
+		
  		If TouchHit(0)
 
  	'			myboard.AddPiece(TouchX(0),TouchY(0),currentplayer)
@@ -361,14 +372,20 @@ Class AppStateGame Extends AppState
  					If exitprompt.TileDown(TouchX(0),TouchY(0))=0
 						Print "GREEN"
 					'	gameover = True
+						exitprompt = Null
+						action = 0
 						Return RETVAL.retry
-					Endif
+					
 				
-					If exitprompt.TileDown(TouchX(0),TouchY(0))=2
+					Elseif exitprompt.TileDown(TouchX(0),TouchY(0))=2
 						Print "RED"
 						exitprompt = Null
 						myboard.standby = False
+				'		Print "What's wrong?"
+						action = 0
+						Return 0
 					Endif
+
 			Endif		
 					
 			Endif		
@@ -408,7 +425,7 @@ Class AppStateGame Extends AppState
 		If action = 1
 			myboard.standby = True 
 	'		myboard = Null
-			exitprompt = New Grid(3,1,DeviceWidth()/8,DeviceHeight()/2-0.5*(DeviceWidth()/8),DeviceHeight()/2-0.5*(DeviceWidth()/8))
+			exitprompt = New Grid(3,1,DeviceWidth()/8,DeviceWidth()/2-1.5*(DeviceWidth()/8),DeviceHeight()/2-0.5*(DeviceWidth()/8))
 
 			exitprompt.AddPiece(exitprompt._offsetx+2*exitprompt._tilesize-1,exitprompt._offsety+1,maskpiece)	
 			
