@@ -272,7 +272,7 @@ Class AppStateGame Extends AppState
 		Self.tilesize = DeviceHeight()/gamesize
 
 		Local soffx:Int
-		Local soffy:Int = DeviceHeight()/2-tilesize
+		Local soffy:Int = DeviceHeight()/2-tilesize*0.5
 		soffx = DeviceWidth()/2-(3/2*tilesize)
 		
 		button_1 = New Piece(0,0,200,0)
