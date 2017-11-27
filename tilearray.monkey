@@ -2,6 +2,8 @@ Strict
 Import Mojo
 #ANDROID_SCREEN_ORIENTATION = "landscape"
 #ANDROID_APP_LABEL = "Match Anything"
+#ANDROID_SIGN_APP = True
+#ANDROID_APP_PACKAGE = "com.Arthur.MatchAnything"
 
 Function Main:Int()
 
