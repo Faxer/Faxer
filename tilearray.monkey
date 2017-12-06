@@ -20,6 +20,7 @@ Class RETVAL
 	Const winner_p1:Int = 6
 	Const winner_p2:Int = 7
 	Const retry:Int = 8
+	Const close :int= 9
 End Class
 
 Class SHAPE
@@ -86,7 +87,9 @@ Field action:Int
 			Case RETVAL.winner_p2
 				Print "Player 2 Wins"
 			Case RETVAL.retry 
-				presentstate = New AppStateStart(DeviceWidth()/16,DeviceHeight()/2)			
+				presentstate = New AppStateStart(DeviceWidth()/16,DeviceHeight()/2)		
+			Case RETVAL.close
+				OnClose()	
 		End Select
 		
 		
@@ -163,6 +166,8 @@ Class AppStateStart Extends AppState
 				Return RETVAL.startgame4
 			Elseif fiveplayer.InsideMe(TouchX(0),TouchY(0))
 				Return RETVAL.startgame5
+			Elseif action = 1
+				Return RETVAL.close
 			Endif
 		Endif
 		Return 0
